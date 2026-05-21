@@ -1,0 +1,34 @@
+@page
+@model NearGo.Pages.Admin.FeesModel
+@{
+    ViewData["Title"] = "Quản lý phí nền tảng";
+    Layout = "_AdminLayout";
+}
+<div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Phí nền tảng (@Model.Fees.Count)</h2>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-left text-gray-500 border-b border-gray-100 dark:border-gray-700">
+                    <th class="pb-3 font-medium">Siêu thị</th>
+                    <th class="pb-3 font-medium">Loại phí</th>
+                    <th class="pb-3 font-medium">Số tiền</th>
+                    <th class="pb-3 font-medium">Trạng thái</th>
+                    <th class="pb-3 font-medium">Ngày</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model.Fees)
+                {
+                    <tr class="border-b border-gray-50 dark:border-gray-800">
+                        <td class="py-3 text-gray-900 dark:text-white">@f.Supermarket?.Name</td>
+                        <td class="py-3 text-gray-500">@f.FeeType</td>
+                        <td class="py-3 text-gray-900 dark:text-white font-medium">@f.Amount.ToString("N0")đ</td>
+                        <td class="py-3"><span class="px-2 py-0.5 rounded-full text-xs @(f.Status == "Paid" ? "bg-green-100 text-green-600" : "bg-yellow-100 text-yellow-600")">@f.Status</span></td>
+                        <td class="py-3 text-gray-500 text-xs">@f.CreatedAt.ToString("dd/MM/yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

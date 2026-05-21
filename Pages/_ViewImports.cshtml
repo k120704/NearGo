@@ -1,0 +1,10 @@
+@using Microsoft.AspNetCore.Identity
+@using NearGo
+@using NearGo.Models
+@using NearGo.Services
+@using NearGo.Hubs
+@using NearGo.Data
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject CartService CartService
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

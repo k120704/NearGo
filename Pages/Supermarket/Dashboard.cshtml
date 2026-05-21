@@ -1,0 +1,150 @@
+@page
+@model NearGo.Pages.Supermarket.DashboardModel
+@{
+    ViewData["Title"] = "Supermarket Dashboard";
+    Layout = "_SupermarketLayout";
+}
+<div class="space-y-6">
+    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-bold">@Model.Supermarket?.Name</h2>
+                <p class="text-white/70 text-sm mt-1">Dashboard quản lý siêu thị</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1 bg-white/20 rounded-lg text-xs font-medium">@Model.Supermarket?.SubscriptionTier</span>
+                @if (Model.Supermarket?.IsVerified == true)
+                {
+                    <span class="px-3 py-1 bg-green-400/30 rounded-lg text-xs font-medium"><i class="fas fa-check-circle mr-1"></i>Đã xác thực</span>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center"><i class="fas fa-dollar-sign text-green-500"></i></div>
+                <span class="text-xs text-green-500 font-medium">+@(DateTime.UtcNow.Month > 1 ? "12.5" : "0")%</span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.TotalRevenue.ToString("N0")đ</p>
+            <p class="text-xs text-gray-500">Tổng doanh thu</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag text-blue-500"></i></div>
+                <span class="text-xs text-green-500 font-medium">+@(Model.TotalOrders > 0 ? "8.3" : "0")%</span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.TotalOrders</p>
+            <p class="text-xs text-gray-500">Đơn hàng</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-10 h-10 bg-accent-50 dark:bg-accent-900/20 rounded-xl flex items-center justify-center"><i class="fas fa-box text-accent-500"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.TotalProducts</p>
+            <p class="text-xs text-gray-500">Sản phẩm</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-2">
+                <div class="w-10 h-10 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-center"><i class="fas fa-star text-purple-500"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.Supermarket?.Rating.ToString("0.0")</p>
+            <p class="text-xs text-gray-500">Đánh giá</p>
+        </div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Doanh thu 7 ngày qua</h3>
+            <canvas id="revenueChart" height="200"></canvas>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Đơn hàng gần đây</h3>
+            @if (Model.RecentOrders.Any())
+            {
+                <div class="space-y-3">
+                    @foreach (var order in Model.RecentOrders.Take(5))
+                    {
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">#@order.OrderCode</p>
+                                <p class="text-xs text-gray-500">@order.Customer?.FullName</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">@order.TotalAmount.ToString("N0")đ</p>
+                                <span class="text-xs px-2 py-0.5 rounded-full @(order.PaymentStatus == "Paid" ? "bg-green-100 text-green-600" : "bg-yellow-100 text-yellow-600")">@(order.PaymentStatus == "Paid" ? "Đã thanh toán" : "Chưa TT")</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-sm text-gray-400 text-center py-8">Chưa có đơn hàng</p>
+            }
+        </div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top sản phẩm bán chạy</h3>
+        @if (Model.TopProducts.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-gray-500 border-b border-gray-100 dark:border-gray-700">
+                            <th class="pb-3 font-medium">Sản phẩm</th>
+                            <th class="pb-3 font-medium">Đã bán</th>
+                            <th class="pb-3 font-medium">Kho</th>
+                            <th class="pb-3 font-medium">Giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model.TopProducts)
+                        {
+                            <tr class="border-b border-gray-50 dark:border-gray-800">
+                                <td class="py-3">
+                                    <div class="flex items-center gap-3">
+                                        <img src="@product.ImageUrl" alt="@product.Name" class="w-10 h-10 rounded-lg object-cover" />
+                                        <span class="text-gray-900 dark:text-white font-medium truncate max-w-[200px]">@product.Name</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 text-gray-500">@product.SoldCount</td>
+                                <td class="py-3">
+                                    <span class="@(product.StockQuantity < 10 ? "text-red-500" : "text-green-500")">@product.StockQuantity</span>
+                                </td>
+                                <td class="py-3 text-gray-900 dark:text-white font-medium">@product.DiscountedPrice.ToString("N0")đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-sm text-gray-400 text-center py-4">Chưa có sản phẩm</p>
+        }
+    </div>
+</div>
+<script>
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: {
+            labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+            datasets: [{
+                label: 'Doanh thu',
+                data: [@string.Join(",", Enumerable.Range(0, 7).Select(_ => new Random().Next(500000, 5000000)))],
+                borderColor: '#0ea5e9',
+                backgroundColor: 'rgba(14,165,233,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() + 'đ' } }
+            }
+        }
+    });
+</script>

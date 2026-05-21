@@ -1,0 +1,43 @@
+@page
+@model NearGo.Pages.SupermarketsModel
+@{
+    ViewData["Title"] = "Siêu thị đối tác";
+}
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Siêu thị đối tác</h1>
+        <p class="text-gray-500 mt-2">Mua sắm từ các siêu thị uy tín trên toàn quốc</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var sm in Model.Supermarkets)
+        {
+            <a href="/supermarkets/detail?slug=@sm.Slug" class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-100 dark:border-gray-700 group">
+                <div class="h-32 overflow-hidden">
+                    <img src="@(sm.CoverImageUrl ?? sm.LogoUrl)" alt="@sm.Name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 -mt-10 border-2 border-white dark:border-gray-800 shadow-md">
+                            <img src="@sm.LogoUrl" alt="@sm.Name" class="w-full h-full object-cover" />
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">@sm.Name</h3>
+                            <div class="flex items-center gap-1 text-xs">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    <i class="fas fa-star @(i < Math.Round(sm.Rating) ? "text-yellow-400" : "text-gray-200 dark:text-gray-600")"></i>
+                                }
+                                <span class="text-gray-400 ml-1">@sm.Rating.ToString("0.0")</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 line-clamp-2">@sm.Description</p>
+                    <div class="flex items-center gap-4 mt-3 text-xs text-gray-400">
+                        <span><i class="fas fa-check-circle text-green-500 mr-1"></i>@(sm.IsVerified ? "Đã xác thực" : "Chưa xác thực")</span>
+                        <span><i class="fas fa-box mr-1"></i>@sm.TotalOrders đơn</span>
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
+</div>

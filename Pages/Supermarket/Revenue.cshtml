@@ -1,0 +1,43 @@
+@page
+@model NearGo.Pages.Supermarket.RevenueModel
+@{
+    ViewData["Title"] = "Doanh thu";
+    Layout = "_SupermarketLayout";
+}
+<div class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <p class="text-sm text-gray-500 mb-1">Tổng doanh thu</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.TotalRevenue.ToString("N0")đ</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <p class="text-sm text-gray-500 mb-1">Đơn đã thanh toán</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.PaidOrders</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <p class="text-sm text-gray-500 mb-1">Phí nền tảng</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.TotalFees.ToString("N0")đ</p>
+        </div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Doanh thu theo tháng</h3>
+        <canvas id="monthlyRevenueChart" height="250"></canvas>
+    </div>
+</div>
+<script>
+    new Chart(document.getElementById('monthlyRevenueChart'), {
+        type: 'bar',
+        data: {
+            labels: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
+            datasets: [{
+                label: 'Doanh thu',
+                data: @Model.RevenueChartData,
+                backgroundColor: 'rgba(14,165,233,0.6)',
+                borderColor: '#0ea5e9',
+                borderWidth: 1,
+                borderRadius: 6,
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => (v / 1000000).toFixed(0) + 'M' } } } }
+    });
+</script>

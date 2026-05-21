@@ -1,0 +1,332 @@
+@page
+@model NearGo.Pages.IndexModel
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<!-- Hero Banner -->
+<div class="relative bg-gradient-to-r from-primary-600 via-primary-500 to-accent-500 overflow-hidden">
+    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542838132-92c53300491e?w=1920')] bg-cover bg-center opacity-10"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-primary-900/80 to-primary-800/60"></div>
+    <div class="relative max-w-7xl mx-auto px-4 py-16 md:py-24">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div data-aos="fade-right">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 text-white mb-4">
+                    <i class="fas fa-clock mr-1.5"></i> Sản phẩm cận date giá tốt
+                </span>
+                <h1 class="text-3xl md:text-5xl font-bold text-white leading-tight mb-4">
+                    Tiết kiệm hơn với<br/>
+                    <span class="text-accent-300">thực phẩm cận date</span>
+                </h1>
+                <p class="text-white/80 text-lg mb-8 max-w-lg">
+                    Mua thực phẩm chất lượng cao sắp đến hạn sử dụng với giá cực kỳ ưu đãi. Vừa tiết kiệm, vừa chống lãng phí thực phẩm.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="/products" class="px-6 py-3 bg-white text-primary-600 font-semibold rounded-xl hover:bg-gray-100 shadow-lg shadow-black/10 transition-all">
+                        <i class="fas fa-shopping-bag mr-2"></i>Mua ngay
+                    </a>
+                    <a href="#categories" class="px-6 py-3 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 border border-white/20 transition-all">
+                        Khám phá <i class="fas fa-arrow-right ml-1.5"></i>
+                    </a>
+                </div>
+                <div class="flex gap-8 mt-8 text-white/70">
+                    <div><span class="text-2xl font-bold text-white">100+</span><p class="text-xs">Siêu thị</p></div>
+                    <div><span class="text-2xl font-bold text-white">5000+</span><p class="text-xs">Sản phẩm</p></div>
+                    <div><span class="text-2xl font-bold text-white">50%</span><p class="text-xs">Tiết kiệm</p></div>
+                </div>
+            </div>
+            <div class="hidden md:block" data-aos="fade-left">
+                <div class="relative">
+                    <div class="w-72 h-72 mx-auto bg-white/10 rounded-full blur-3xl"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white/10 backdrop-blur rounded-2xl p-4 border border-white/20">
+                                <i class="fas fa-tag text-2xl text-accent-300 mb-2"></i>
+                                <p class="text-white text-sm font-medium">Giảm đến 50%</p>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur rounded-2xl p-4 border border-white/20 mt-8">
+                                <i class="fas fa-leaf text-2xl text-green-300 mb-2"></i>
+                                <p class="text-white text-sm font-medium">Chống lãng phí</p>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur rounded-2xl p-4 border border-white/20 -mt-4">
+                                <i class="fas fa-truck text-2xl text-blue-300 mb-2"></i>
+                                <p class="text-white text-sm font-medium">Giao nhanh</p>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur rounded-2xl p-4 border border-white/20 mt-4">
+                                <i class="fas fa-shield text-2xl text-purple-300 mb-2"></i>
+                                <p class="text-white text-sm font-medium">Chất lượng</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Categories -->
+<div class="max-w-7xl mx-auto px-4 -mt-8 relative z-10" id="categories">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-gray-900/50 p-6" data-aos="fade-up">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Danh mục sản phẩm</h2>
+            <a href="/products" class="text-sm text-primary-600 hover:text-primary-700 font-medium">Xem tất cả <i class="fas fa-arrow-right ml-1"></i></a>
+        </div>
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+            @foreach (var cat in Model.Categories)
+            {
+                <a href="/products?category=@cat.Slug" class="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all group">
+                    <div class="w-12 h-12 bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        @if (!string.IsNullOrEmpty(cat.IconClass))
+                        {
+                            <i class="@cat.IconClass text-primary-500 text-lg"></i>
+                        }
+                        else
+                        {
+                            <i class="fas fa-tag text-primary-500 text-lg"></i>
+                        }
+                    </div>
+                    <span class="text-xs text-center text-gray-600 dark:text-gray-300 font-medium leading-tight">@cat.Name</span>
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Banner Carousel -->
+@if (Model.Banners.Any())
+{
+    <div class="max-w-7xl mx-auto px-4 mt-10">
+        <div class="swiper bannerSwiper rounded-2xl overflow-hidden shadow-lg" data-aos="fade-up">
+            <div class="swiper-wrapper">
+                @foreach (var banner in Model.Banners)
+                {
+                    <div class="swiper-slide">
+                        <a href="@banner.LinkUrl" class="block relative h-48 md:h-64">
+                            <img src="@banner.ImageUrl" alt="@banner.Title" class="w-full h-full object-cover" />
+                            <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center">
+                                <div class="p-8 md:p-12">
+                                    <h3 class="text-xl md:text-3xl font-bold text-white mb-2">@banner.Title</h3>
+                                    @if (!string.IsNullOrEmpty(banner.Subtitle))
+                                    {
+                                        <p class="text-white/80 text-sm md:text-base mb-4">@banner.Subtitle</p>
+                                    }
+                                    @if (!string.IsNullOrEmpty(banner.ButtonText))
+                                    {
+                                        <span class="inline-flex items-center px-4 py-2 bg-accent-500 text-white font-medium rounded-lg text-sm hover:bg-accent-600 transition-colors">
+                                            @banner.ButtonText <i class="fas fa-arrow-right ml-2"></i>
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+}
+
+<!-- Flash Sale -->
+@if (Model.ActiveFlashSales.Any())
+{
+    <section class="max-w-7xl mx-auto px-4 mt-10">
+        <div class="bg-gradient-to-r from-red-500 via-red-600 to-accent-500 rounded-2xl p-6 md:p-8 shadow-xl" data-aos="fade-up">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-bolt text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Flash Sale</h2>
+                        <p class="text-white/70 text-sm">Kết thúc trong</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-white font-mono text-lg" id="flashSaleTimer">
+                    <span class="bg-white/20 px-2 py-1 rounded-lg" id="hours">00</span>
+                    <span>:</span>
+                    <span class="bg-white/20 px-2 py-1 rounded-lg" id="minutes">00</span>
+                    <span>:</span>
+                    <span class="bg-white/20 px-2 py-1 rounded-lg" id="seconds">00</span>
+                </div>
+            </div>
+            <div class="swiper flashSaleSwiper">
+                <div class="swiper-wrapper">
+                    @foreach (var fp in Model.ActiveFlashSales.Take(10))
+                    {
+                        <div class="swiper-slide">
+                            <a href="/products/detail?id=@fp.Product.Id" class="block bg-white dark:bg-gray-800 rounded-xl overflow-hidden hover:shadow-lg transition-shadow group">
+                                <div class="relative">
+                                    <img src="@fp.Product.ImageUrl" alt="@fp.Product.Name" class="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-300" />
+                                    <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg">-@((int)((1 - fp.SalePrice / fp.Product.OriginalPrice) * 100))%</span>
+                                    <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                        <div class="bg-white/20 rounded-full h-1.5 overflow-hidden">
+                                            <div class="bg-accent-400 h-full rounded-full" style="width: @(fp.SoldQuantity * 100 / (fp.MaxQuantity > 0 ? fp.MaxQuantity : 1))%"></div>
+                                        </div>
+                                        <p class="text-white text-xs mt-1">Đã bán @fp.SoldQuantity</p>
+                                    </div>
+                                </div>
+                                <div class="p-3">
+                                    <p class="text-xs text-gray-500 truncate">@fp.Product.Supermarket.Name</p>
+                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate mt-1">@fp.Product.Name</h3>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span class="text-sm font-bold text-red-500">@fp.SalePrice.ToString("N0")đ</span>
+                                        <span class="text-xs text-gray-400 line-through">@fp.Product.OriginalPrice.ToString("N0")đ</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+                <div class="swiper-pagination mt-4"></div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Featured Products -->
+<section class="max-w-7xl mx-auto px-4 mt-10">
+    <div class="flex items-center justify-between mb-6" data-aos="fade-up">
+        <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Sản phẩm nổi bật</h2>
+            <p class="text-sm text-gray-500">Sản phẩm cận date với giá tốt nhất</p>
+        </div>
+        <a href="/products" class="text-sm text-primary-600 hover:text-primary-700 font-medium">Xem tất cả <i class="fas fa-arrow-right ml-1"></i></a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        @foreach (var product in Model.FeaturedProducts)
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group border border-gray-100 dark:border-gray-700" data-aos="fade-up" data-aos-delay="@(Model.FeaturedProducts.IndexOf(product) * 50)">
+                <div class="relative overflow-hidden">
+                    <a href="/products/detail?id=@product.Id">
+                        <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                    </a>
+                    <div class="absolute top-2 left-2 flex flex-col gap-1">
+                        @if (product.DiscountPercentage > 0)
+                        {
+                            <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg">-@((int)product.DiscountPercentage)%</span>
+                        }
+                        @if (product.SmartExpiryScore < 30)
+                        {
+                            <span class="bg-accent-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg">Sắp hết hạn</span>
+                        }
+                    </div>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <button onclick="toggleWishlist(@product.Id)" class="absolute top-2 right-2 w-8 h-8 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center hover:bg-white transition-all opacity-0 group-hover:opacity-100">
+                            <i class="far fa-heart text-sm text-gray-600 dark:text-gray-300"></i>
+                        </button>
+                    }
+                </div>
+                <div class="p-3">
+                    <a href="/products?supermarket=@product.Supermarket.Slug" class="text-xs text-primary-500 hover:text-primary-600 font-medium">@product.Supermarket.Name</a>
+                    <a href="/products/detail?id=@product.Id">
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate mt-1 hover:text-primary-600 transition-colors">@product.Name</h3>
+                    </a>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="text-base font-bold text-gray-900 dark:text-white">@product.DiscountedPrice.ToString("N0")đ</span>
+                        @if (product.DiscountPercentage > 0)
+                        {
+                            <span class="text-xs text-gray-400 line-through">@product.OriginalPrice.ToString("N0")đ</span>
+                        }
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-xs text-gray-400"><i class="far fa-clock mr-1"></i>Còn @((product.ExpiryDate - DateTime.UtcNow).Days) ngày</span>
+                        <button onclick="addToCart(@product.Id)" class="w-8 h-8 bg-primary-50 dark:bg-primary-900/30 text-primary-500 rounded-lg hover:bg-primary-500 hover:text-white transition-all">
+                            <i class="fas fa-plus text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Surprise Boxes -->
+@if (Model.SurpriseBoxes.Any())
+{
+    <section class="max-w-7xl mx-auto px-4 mt-10">
+        <div class="flex items-center justify-between mb-6" data-aos="fade-up">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hộp bất ngờ</h2>
+                <p class="text-sm text-gray-500">Nhận sản phẩm ngẫu nhiên với giá cực sốc</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            @foreach (var box in Model.SurpriseBoxes)
+            {
+                <div class="bg-gradient-to-br from-purple-500 via-purple-600 to-pink-500 rounded-2xl p-6 text-white shadow-xl" data-aos="fade-up">
+                    <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-gift text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">@box.Name</h3>
+                    <p class="text-white/80 text-sm mb-4">@box.Description</p>
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <span class="text-2xl font-bold">@box.Price.ToString("N0")đ</span>
+                            <span class="text-white/60 line-through ml-2 text-sm">@box.OriginalValue.ToString("N0")đ</span>
+                        </div>
+                        <span class="bg-white/20 px-2 py-1 rounded-lg text-xs">Tiết kiệm @((int)((1 - box.Price / box.OriginalValue) * 100))%</span>
+                    </div>
+                    <a href="/surprise-boxes/detail?id=@box.Id" class="block w-full py-2.5 bg-white text-purple-600 font-semibold rounded-xl text-center hover:bg-gray-100 transition-colors">
+                        Khám phá ngay
+                    </a>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<!-- Supermarkets -->
+<section class="max-w-7xl mx-auto px-4 mt-10 mb-10">
+    <div class="flex items-center justify-between mb-6" data-aos="fade-up">
+        <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Siêu thị đối tác</h2>
+            <p class="text-sm text-gray-500">Mua sắm từ các siêu thị uy tín</p>
+        </div>
+        <a href="/supermarkets" class="text-sm text-primary-600 hover:text-primary-700 font-medium">Xem tất cả <i class="fas fa-arrow-right ml-1"></i></a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        @foreach (var sm in Model.Supermarkets)
+        {
+            <a href="/supermarkets/detail?slug=@sm.Slug" class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm hover:shadow-lg transition-all text-center border border-gray-100 dark:border-gray-700 group" data-aos="fade-up">
+                <div class="w-16 h-16 mx-auto mb-3 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
+                    <img src="@sm.LogoUrl" alt="@sm.Name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">@sm.Name</h3>
+                <div class="flex items-center justify-center gap-1 mt-1">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <i class="fas fa-star text-xs @(i < Math.Round(sm.Rating) ? "text-yellow-400" : "text-gray-200 dark:text-gray-600")"></i>
+                    }
+                    <span class="text-xs text-gray-400 ml-1">@sm.Rating.ToString("0.0")</span>
+                </div>
+            </a>
+        }
+    </div>
+</section>
+
+<script>
+    new Swiper('.bannerSwiper', {
+        loop: true,
+        autoplay: { delay: 5000 },
+        pagination: { el: '.swiper-pagination', clickable: true }
+    });
+    new Swiper('.flashSaleSwiper', {
+        slidesPerView: 2,
+        spaceBetween: 12,
+        pagination: { el: '.swiper-pagination', clickable: true },
+        breakpoints: { 640: { slidesPerView: 3 }, 768: { slidesPerView: 4 }, 1024: { slidesPerView: 5 } }
+    });
+    function updateTimer() {
+        var now = new Date();
+        var end = new Date();
+        end.setHours(23, 59, 59, 999);
+        var diff = end - now;
+        document.getElementById('hours').textContent = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        document.getElementById('minutes').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        document.getElementById('seconds').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+    }
+    setInterval(updateTimer, 1000);
+    updateTimer();
+</script>

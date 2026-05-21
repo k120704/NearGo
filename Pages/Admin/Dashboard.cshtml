@@ -1,0 +1,141 @@
+@page
+@model NearGo.Pages.Admin.DashboardModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_AdminLayout";
+}
+<div class="space-y-6">
+    <div class="bg-gradient-to-r from-primary-600 via-primary-500 to-accent-500 rounded-2xl p-6 text-white">
+        <h2 class="text-xl font-bold">Admin Dashboard</h2>
+        <p class="text-white/70 text-sm mt-1">Quản lý nền tảng NearGo</p>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-11 h-11 bg-primary-50 dark:bg-primary-900/20 rounded-xl flex items-center justify-center"><i class="fas fa-users text-primary-500"></i></div>
+                <span class="text-xs text-green-500 font-medium">+15%</span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.TotalUsers</p>
+            <p class="text-xs text-gray-500">Người dùng</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-11 h-11 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center"><i class="fas fa-store text-green-500"></i></div>
+                <span class="text-xs text-green-500 font-medium">+8%</span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.TotalSupermarkets</p>
+            <p class="text-xs text-gray-500">Siêu thị</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="w-11 h-11 bg-accent-50 dark:bg-accent-900/20 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-shopping-bag text-accent-500"></i></div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.TotalOrders</p>
+            <p class="text-xs text-gray-500">Đơn hàng</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="w-11 h-11 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-dollar-sign text-purple-500"></i></div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">@Model.TotalRevenue.ToString("N0")đ</p>
+            <p class="text-xs text-gray-500">Doanh thu nền tảng</p>
+        </div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Doanh thu theo tháng</h3>
+            <canvas id="revenueChart" height="250"></canvas>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Người dùng mới</h3>
+            <canvas id="usersChart" height="250"></canvas>
+        </div>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Phân bố người dùng</h3>
+            <canvas id="roleChart" height="220"></canvas>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 md:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Siêu thị nổi bật</h3>
+                <a href="/admin/supermarkets" class="text-sm text-primary-500 hover:text-primary-600">Xem tất cả</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-gray-500 border-b border-gray-100 dark:border-gray-700">
+                            <th class="pb-3 font-medium">Siêu thị</th>
+                            <th class="pb-3 font-medium">Gói</th>
+                            <th class="pb-3 font-medium">Đánh giá</th>
+                            <th class="pb-3 font-medium">Đơn hàng</th>
+                            <th class="pb-3 font-medium">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sm in Model.TopSupermarkets)
+                        {
+                            <tr class="border-b border-gray-50 dark:border-gray-800">
+                                <td class="py-3">
+                                    <div class="flex items-center gap-3">
+                                        <img src="@sm.LogoUrl" alt="@sm.Name" class="w-8 h-8 rounded-lg object-cover" />
+                                        <span class="text-gray-900 dark:text-white font-medium">@sm.Name</span>
+                                    </div>
+                                </td>
+                                <td class="py-3"><span class="px-2 py-0.5 rounded-full text-xs bg-primary-50 dark:bg-primary-900/20 text-primary-600">@sm.SubscriptionTier</span></td>
+                                <td class="py-3"><div class="flex items-center gap-1">@sm.Rating.ToString("0.0") <i class="fas fa-star text-yellow-400 text-xs"></i></div></td>
+                                <td class="py-3 text-gray-500">@sm.TotalOrders</td>
+                                <td class="py-3">
+                                    <span class="px-2 py-0.5 rounded-full text-xs @(sm.IsActive ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600")">
+                                        @(sm.IsActive ? "Hoạt động" : "Tạm dừng")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: {
+            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+            datasets: [{
+                label: 'Doanh thu',
+                data: @Json.Serialize(Enumerable.Range(0, 12).Select(_ => new Random().Next(10, 100) * 1000000).ToArray()),
+                backgroundColor: 'rgba(14,165,233,0.6)',
+                borderColor: '#0ea5e9',
+                borderWidth: 1,
+                borderRadius: 6,
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => (v / 1000000).toFixed(0) + 'M' } } } }
+    });
+    new Chart(document.getElementById('usersChart'), {
+        type: 'line',
+        data: {
+            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+            datasets: [{
+                label: 'Người dùng',
+                data: @Json.Serialize(Enumerable.Range(0, 12).Select(i => (i + 1) * new Random().Next(50, 200)).ToArray()),
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34,197,94,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+    new Chart(document.getElementById('roleChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Khách hàng', 'Siêu thị', 'Admin'],
+            datasets: [{
+                data: [@Model.TotalUsers - @Model.TotalSupermarkets - 1, @Model.TotalSupermarkets, 1],
+                backgroundColor: ['#0ea5e9', '#f97316', '#8b5cf6'],
+                borderWidth: 0,
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+</script>

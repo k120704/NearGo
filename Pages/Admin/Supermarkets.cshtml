@@ -1,0 +1,51 @@
+@page
+@model NearGo.Pages.Admin.SupermarketsModel
+@{
+    ViewData["Title"] = "Quản lý siêu thị";
+    Layout = "_AdminLayout";
+}
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Siêu thị (@Model.Supermarkets.Count)</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-left text-gray-500 border-b border-gray-100 dark:border-gray-700">
+                    <th class="pb-3 font-medium">Tên</th>
+                    <th class="pb-3 font-medium">Email</th>
+                    <th class="pb-3 font-medium">Gói</th>
+                    <th class="pb-3 font-medium">Đánh giá</th>
+                    <th class="pb-3 font-medium">Xác thực</th>
+                    <th class="pb-3 font-medium">Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sm in Model.Supermarkets)
+                {
+                    <tr class="border-b border-gray-50 dark:border-gray-800">
+                        <td class="py-3">
+                            <div class="flex items-center gap-3">
+                                <img src="@sm.LogoUrl" alt="@sm.Name" class="w-8 h-8 rounded-lg object-cover" />
+                                <span class="text-gray-900 dark:text-white font-medium">@sm.Name</span>
+                            </div>
+                        </td>
+                        <td class="py-3 text-gray-500">@sm.Email</td>
+                        <td class="py-3"><span class="px-2 py-0.5 rounded-full text-xs bg-primary-50 dark:bg-primary-900/20 text-primary-600">@sm.SubscriptionTier</span></td>
+                        <td class="py-3">@sm.Rating.ToString("0.0")</td>
+                        <td class="py-3">
+                            <span class="px-2 py-0.5 rounded-full text-xs @(sm.IsVerified ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-500")">
+                                @(sm.IsVerified ? "Đã xác thực" : "Chưa")
+                            </span>
+                        </td>
+                        <td class="py-3">
+                            <span class="px-2 py-0.5 rounded-full text-xs @(sm.IsActive ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600")">
+                                @(sm.IsActive ? "Hoạt động" : "Tạm dừng")
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

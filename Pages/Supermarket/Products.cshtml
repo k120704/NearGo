@@ -1,0 +1,49 @@
+@page
+@model NearGo.Pages.Supermarket.ProductsModel
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+    Layout = "_SupermarketLayout";
+}
+<div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Sản phẩm của tôi (@Model.Products.Count)</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-left text-gray-500 border-b border-gray-100 dark:border-gray-700">
+                    <th class="pb-3 font-medium">Sản phẩm</th>
+                    <th class="pb-3 font-medium">Giá</th>
+                    <th class="pb-3 font-medium">Giảm</th>
+                    <th class="pb-3 font-medium">Kho</th>
+                    <th class="pb-3 font-medium">Đã bán</th>
+                    <th class="pb-3 font-medium">HSD</th>
+                    <th class="pb-3 font-medium">Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Products)
+                {
+                    <tr class="border-b border-gray-50 dark:border-gray-800">
+                        <td class="py-3">
+                            <div class="flex items-center gap-3">
+                                <img src="@p.ImageUrl" alt="@p.Name" class="w-10 h-10 rounded-lg object-cover" />
+                                <span class="text-gray-900 dark:text-white font-medium truncate max-w-[200px]">@p.Name</span>
+                            </div>
+                        </td>
+                        <td class="py-3 text-gray-900 dark:text-white font-medium">@p.DiscountedPrice.ToString("N0")đ</td>
+                        <td class="py-3 text-red-500">-@((int)p.DiscountPercentage)%</td>
+                        <td class="py-3"><span class="@(p.StockQuantity < 10 ? "text-red-500" : "text-green-500")">@p.StockQuantity</span></td>
+                        <td class="py-3 text-gray-500">@p.SoldCount</td>
+                        <td class="py-3 text-gray-500">@p.ExpiryDate.ToString("dd/MM")</td>
+                        <td class="py-3">
+                            <span class="px-2 py-0.5 rounded-full text-xs @(p.IsActive && p.StockQuantity > 0 ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600")">
+                                @(p.IsActive && p.StockQuantity > 0 ? "Đang bán" : "Ẩn")
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

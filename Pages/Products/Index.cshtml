@@ -1,0 +1,144 @@
+@page
+@model NearGo.Pages.Products.IndexModel
+@{
+    ViewData["Title"] = "Sản phẩm";
+}
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex flex-col md:flex-row gap-6">
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 sticky top-20">
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Bộ lọc</h3>
+                <form method="get" id="filterForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Danh mục</label>
+                        <select name="category" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-primary-500 outline-none" onchange="this.form.submit()">
+                            <option value="">Tất cả</option>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <option value="@cat.Slug" selected="@(Model.CategorySlug == cat.Slug)">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Siêu thị</label>
+                        <select name="supermarket" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-primary-500 outline-none" onchange="this.form.submit()">
+                            <option value="">Tất cả</option>
+                            @foreach (var sm in Model.Supermarkets)
+                            {
+                                <option value="@sm.Slug" selected="@(Model.SupermarketSlug == sm.Slug)">@sm.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Sắp xếp</label>
+                        <select name="sort" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-primary-500 outline-none" onchange="this.form.submit()">
+                            <option value="newest" selected="@(Model.Sort == "newest")">Mới nhất</option>
+                            <option value="price-asc" selected="@(Model.Sort == "price-asc")">Giá thấp đến cao</option>
+                            <option value="price-desc" selected="@(Model.Sort == "price-desc")">Giá cao đến thấp</option>
+                            <option value="discount" selected="@(Model.Sort == "discount")">Giảm giá nhiều</option>
+                            <option value="expiry" selected="@(Model.Sort == "expiry")">Sắp hết hạn</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Khoảng giá</label>
+                        <div class="flex gap-2">
+                            <input type="number" name="minPrice" value="@Model.MinPrice" placeholder="Từ" class="w-1/2 px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                            <input type="number" name="maxPrice" value="@Model.MaxPrice" placeholder="Đến" class="w-1/2 px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-2.5 bg-primary-500 text-white text-sm font-medium rounded-xl hover:bg-primary-600 transition-colors">Áp dụng</button>
+                    <a href="/products" class="block text-center mt-2 py-2 text-sm text-gray-500 hover:text-primary-600">Xóa bộ lọc</a>
+                </form>
+            </div>
+        </aside>
+        <div class="flex-1">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+                    @if (!string.IsNullOrEmpty(Model.CategoryName))
+                    {
+                        @Model.CategoryName
+                    }
+                    else
+                    {
+                        <text>Tất cả sản phẩm</text>
+                    }
+                </h1>
+                <span class="text-sm text-gray-500">@Model.TotalCount sản phẩm</span>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.SearchQuery))
+            {
+                <div class="mb-4 p-3 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-200 rounded-xl text-sm">
+                    Kết quả tìm kiếm cho "<strong>@Model.SearchQuery</strong>"
+                </div>
+            }
+            @if (!Model.Products.Any())
+            {
+                <div class="text-center py-16">
+                    <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-box-open text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Không tìm thấy sản phẩm</h3>
+                    <p class="text-sm text-gray-500">Thử thay đổi bộ lọc hoặc tìm kiếm khác</p>
+                </div>
+            }
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                @foreach (var product in Model.Products)
+                {
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group border border-gray-100 dark:border-gray-700">
+                        <div class="relative overflow-hidden">
+                            <a href="/products/detail?id=@product.Id">
+                                <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                            </a>
+                            @if (product.DiscountPercentage > 0)
+                            {
+                                <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg">-@((int)product.DiscountPercentage)%</span>
+                            }
+                        </div>
+                        <div class="p-3">
+                            <a href="/products/detail?id=@product.Id">
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate hover:text-primary-600 transition-colors">@product.Name</h3>
+                            </a>
+                            <p class="text-xs text-gray-400 mt-0.5">@product.Supermarket?.Name</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-base font-bold text-gray-900 dark:text-white">@product.DiscountedPrice.ToString("N0")đ</span>
+                                @if (product.DiscountPercentage > 0)
+                                {
+                                    <span class="text-xs text-gray-400 line-through">@product.OriginalPrice.ToString("N0")đ</span>
+                                }
+                            </div>
+                            <div class="flex items-center justify-between mt-2">
+                                <span class="text-xs text-gray-400"><i class="far fa-clock mr-1"></i>Còn @Math.Max(0, (product.ExpiryDate - DateTime.UtcNow).Days) ngày</span>
+                                <button onclick="addToCart(@product.Id)" class="w-8 h-8 bg-primary-50 dark:bg-primary-900/30 text-primary-500 rounded-lg hover:bg-primary-500 hover:text-white transition-all">
+                                    <i class="fas fa-plus text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            @if (Model.TotalPages > 1)
+            {
+                <div class="flex items-center justify-center gap-2 mt-8">
+                    @if (Model.CurrentPage > 1)
+                    {
+                        <a href="@Url.Page("Index", new { page = Model.CurrentPage - 1, category = Model.CategorySlug, supermarket = Model.SupermarketSlug, sort = Model.Sort, search = Model.SearchQuery, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice })" class="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    }
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <a href="@Url.Page("Index", new { page = i, category = Model.CategorySlug, supermarket = Model.SupermarketSlug, sort = Model.Sort, search = Model.SearchQuery, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice })" class="px-4 py-2 text-sm rounded-xl @(i == Model.CurrentPage ? "bg-primary-500 text-white" : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700") transition-colors">
+                            @i
+                        </a>
+                    }
+                    @if (Model.CurrentPage < Model.TotalPages)
+                    {
+                        <a href="@Url.Page("Index", new { page = Model.CurrentPage + 1, category = Model.CategorySlug, supermarket = Model.SupermarketSlug, sort = Model.Sort, search = Model.SearchQuery, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice })" class="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
