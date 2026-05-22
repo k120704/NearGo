@@ -6,6 +6,7 @@ using NearGo.Services;
 
 namespace NearGo.Pages.Cart
 {
+    [IgnoreAntiforgeryToken]
     public class CartApiModel : PageModel
     {
         private readonly CartService _cartService;

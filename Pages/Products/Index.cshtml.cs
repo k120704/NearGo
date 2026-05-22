@@ -17,9 +17,8 @@ namespace NearGo.Pages.Products
 
         public List<Product> Products { get; set; } = new();
         public List<Category> Categories { get; set; } = new();
-        public List<NearGo.Models.Supermarket> Supermarkets { get; set; } = new();
         public string? CategorySlug { get; set; }
-        public string? SupermarketSlug { get; set; }
+        public string? Area { get; set; }
         public string? CategoryName { get; set; }
         public string? Sort { get; set; }
         public string? SearchQuery { get; set; }
@@ -30,10 +29,10 @@ namespace NearGo.Pages.Products
         public int TotalCount { get; set; }
         private const int PageSize = 20;
 
-        public async Task OnGetAsync(string? category, string? supermarket, string? sort, string? search, decimal? minPrice, decimal? maxPrice, int page = 1)
+        public async Task OnGetAsync(string? category, string? area, string? sort, string? search, decimal? minPrice, decimal? maxPrice, int page = 1)
         {
             CategorySlug = category;
-            SupermarketSlug = supermarket;
+            Area = area;
             Sort = sort ?? "newest";
             SearchQuery = search;
             MinPrice = minPrice;
@@ -41,7 +40,6 @@ namespace NearGo.Pages.Products
             CurrentPage = Math.Max(1, page);
 
             Categories = await _context.Categories.Where(c => c.IsActive).OrderBy(c => c.SortOrder).ToListAsync();
-            Supermarkets = await _context.Supermarkets.Where(s => s.IsActive).OrderBy(s => s.Name).ToListAsync();
 
             var now = DateTime.UtcNow;
             var query = _context.Products
@@ -60,10 +58,10 @@ namespace NearGo.Pages.Products
                 }
             }
 
-            if (!string.IsNullOrEmpty(supermarket))
+            if (!string.IsNullOrEmpty(area))
             {
-                var sm = await _context.Supermarkets.FirstOrDefaultAsync(s => s.Slug == supermarket);
-                if (sm != null) query = query.Where(p => p.SupermarketId == sm.Id);
+                var areaLower = area.ToLower();
+                query = query.Where(p => p.Supermarket.Address != null && p.Supermarket.Address.ToLower().Contains(areaLower));
             }
 
             if (!string.IsNullOrEmpty(search))

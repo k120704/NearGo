@@ -9,6 +9,7 @@ using NearGo.Models;
 namespace NearGo.Pages
 {
     [Authorize(Roles = "Customer")]
+    [IgnoreAntiforgeryToken]
     public class WishlistModel : PageModel
     {
         private readonly ApplicationDbContext _context;

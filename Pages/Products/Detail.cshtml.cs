@@ -25,7 +25,11 @@ namespace NearGo.Pages.Products
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (Product == null) return Page();
+            if (Product == null || Product.StockQuantity <= 0 || Product.ExpiryDate <= DateTime.UtcNow)
+            {
+                Product = null;
+                return Page();
+            }
 
             Product.ViewCount++;
             await _context.SaveChangesAsync();
