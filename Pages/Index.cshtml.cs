@@ -33,7 +33,7 @@ namespace NearGo.Pages
                 .ToListAsync();
 
             Banners = await _context.Banners
-                .Where(b => b.IsActive)
+                .Where(b => b.IsActive && b.Status == "Approved")
                 .OrderBy(b => b.SortOrder)
                 .ToListAsync();
 

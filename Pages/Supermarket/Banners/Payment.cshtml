@@ -1,0 +1,90 @@
+@page
+@model NearGo.Pages.Supermarket.Banners.PaymentModel
+@{
+    ViewData["Title"] = "Đăng ký Banner";
+    Layout = "_SupermarketLayout";
+    var packages = new[] {
+        new { Days = 7, Price = 50000, Label = "7 ngày", Badge = "" },
+        new { Days = 15, Price = 100000, Label = "15 ngày", Badge = "Phổ biến" },
+        new { Days = 30, Price = 200000, Label = "30 ngày", Badge = "Tiết kiệm" }
+    };
+}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Đăng ký Banner quảng cáo</h2>
+        <p class="text-sm text-gray-400 mb-6">Chọn gói và điền thông tin banner</p>
+
+        <form method="post" class="space-y-6">
+            <div asp-validation-summary="ModelOnly" class="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-xl p-3"></div>
+
+            @* Chọn gói *@
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">Chọn gói quảng cáo</label>
+                <div class="grid grid-cols-3 gap-3">
+                    @foreach (var pkg in packages)
+                    {
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="Input.PackageDays" value="@pkg.Days" class="sr-only peer"
+                                   checked="@(Model.Input.PackageDays == pkg.Days ? true : null)" />
+                            <div class="p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-center
+                                peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-all">
+                                @if (!string.IsNullOrEmpty(pkg.Badge))
+                                {
+                                    <span class="absolute -top-2 -right-2 px-2 py-0.5 bg-primary-500 text-white text-xs font-medium rounded-full">@pkg.Badge</span>
+                                }
+                                <p class="text-lg font-bold text-gray-900 dark:text-white">@pkg.Price.ToString("N0")đ</p>
+                                <p class="text-xs text-gray-400 mt-1">@pkg.Label</p>
+                            </div>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            @* Form nhập liệu *@
+            <div class="space-y-4 pt-2">
+                <div>
+                    <label asp-for="Input.Title" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Tiêu đề <span class="text-red-400">*</span></label>
+                    <input asp-for="Input.Title" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" placeholder="VD: Giảm giá sốc cuối tuần" />
+                    <span asp-validation-for="Input.Title" class="text-xs text-red-500"></span>
+                </div>
+                <div>
+                    <label asp-for="Input.Subtitle" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Phụ đề</label>
+                    <input asp-for="Input.Subtitle" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" placeholder="VD: Hàng loạt ưu đãi hấp dẫn" />
+                </div>
+                <div>
+                    <label asp-for="Input.ImageUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">URL hình ảnh (1920x600px) <span class="text-red-400">*</span></label>
+                    <input asp-for="Input.ImageUrl" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" placeholder="https://..." />
+                    <span asp-validation-for="Input.ImageUrl" class="text-xs text-red-500"></span>
+                </div>
+            </div>
+
+            @* Thanh toán *@
+            <div class="bg-gray-100 dark:bg-gray-700 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-300">Tổng tiền</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white" id="totalPrice">200,000đ</p>
+                    <p class="text-xs text-gray-400">Bao gồm VAT</p>
+                </div>
+                <button type="submit" class="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg">
+                    <i class="fas fa-credit-card mr-1"></i> Thanh toán qua VNPay
+                </button>
+            </div>
+        </form>
+
+        <a href="/supermarket/banners" class="inline-block mt-3 text-sm text-gray-400 hover:text-gray-600">
+            <i class="fas fa-arrow-left mr-1"></i> Quay lại
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const prices = { 7: 50000, 15: 100000, 30: 200000 };
+        document.querySelectorAll('input[name="Input.PackageDays"]').forEach(r => {
+            r.addEventListener('change', function () {
+                const price = prices[this.value] || 0;
+                document.getElementById('totalPrice').textContent = price.toLocaleString('vi-VN') + 'đ';
+            });
+        });
+    </script>
+}

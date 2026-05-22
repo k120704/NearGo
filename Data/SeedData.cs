@@ -227,11 +227,29 @@ namespace NearGo.Data
 
             var banners = new List<Banner>
             {
-                new Banner { Title = "Flash Sale Siêu Hời", Subtitle = "Giảm đến 50% sản phẩm cận date", ImageUrl = "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200", LinkUrl = "/flashsales", ButtonText = "Mua ngay", SortOrder = 1, IsActive = true },
-                new Banner { Title = "Sản phẩm Organic", Subtitle = "Thực phẩm sạch, an toàn cho gia đình", ImageUrl = "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=1200", LinkUrl = "/products?category=san-pham-organic", ButtonText = "Khám phá", SortOrder = 2, IsActive = true },
-                new Banner { Title = "Tiết kiệm cùng NearGo", Subtitle = "Mua thực phẩm cận date - Chất lượng tốt, giá tốt", ImageUrl = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200", LinkUrl = "/products", ButtonText = "Xem ngay", SortOrder = 3, IsActive = true }
+                new Banner { Title = "Flash Sale Siêu Hời", Subtitle = "Giảm đến 50% sản phẩm cận date", ImageUrl = "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200", LinkUrl = "/flashsales", ButtonText = "Mua ngay", SortOrder = 1, IsActive = true, Status = "Approved", PaymentStatus = "Paid", PackageDays = 30, PackagePrice = 200000 },
+                new Banner { Title = "Sản phẩm Organic", Subtitle = "Thực phẩm sạch, an toàn cho gia đình", ImageUrl = "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=1200", LinkUrl = "/products?category=san-pham-organic", ButtonText = "Khám phá", SortOrder = 2, IsActive = true, Status = "Approved", PaymentStatus = "Paid", PackageDays = 30, PackagePrice = 200000 },
+                new Banner { Title = "Tiết kiệm cùng NearGo", Subtitle = "Mua thực phẩm cận date - Chất lượng tốt, giá tốt", ImageUrl = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200", LinkUrl = "/products", ButtonText = "Xem ngay", SortOrder = 3, IsActive = true, Status = "Approved", PaymentStatus = "Paid", PackageDays = 30, PackagePrice = 200000 }
             };
             context.Banners.AddRange(banners);
+
+            var testBanner = new Banner
+            {
+                Title = "Khuyến Mãi Tháng 6",
+                Subtitle = "Giảm sốc 30% thực phẩm cận date - Có giá trị đến hết tháng",
+                ImageUrl = "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200",
+                LinkUrl = "/flashsales",
+                ButtonText = "Xem ngay",
+                SupermarketId = 1,
+                Status = "Pending",
+                PaymentStatus = "Paid",
+                PackageDays = 7,
+                PackagePrice = 50000,
+                IsActive = false,
+                SortOrder = 0,
+                CreatedAt = DateTime.UtcNow
+            };
+            context.Banners.Add(testBanner);
 
             var vouchers = new List<Voucher>();
             for (int i = 0; i < 30; i++)

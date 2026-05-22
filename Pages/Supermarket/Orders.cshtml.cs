@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using NearGo.Data;
+using Microsoft.AspNetCore.SignalR;
 using NearGo.Models;
 
 namespace NearGo.Pages.Supermarket
@@ -13,26 +14,114 @@ namespace NearGo.Pages.Supermarket
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IHubContext<Hubs.NotificationHub> _hubContext;
 
-        public OrdersModel(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public OrdersModel(ApplicationDbContext context, UserManager<AppUser> userManager,
+            IHubContext<Hubs.NotificationHub> hubContext)
         {
             _context = context;
             _userManager = userManager;
+            _hubContext = hubContext;
         }
 
         public List<NearGo.Models.Order> Orders { get; set; } = new();
+        public int TotalCount { get; set; }
+        public int TotalPages { get; set; }
+        public int CurrentPage { get; set; } = 1;
+        public string? Search { get; set; }
+        public string? Status { get; set; }
+        public string? Payment { get; set; }
+        private const int PageSize = 15;
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(string? search, string? status, string? payment, int page = 1)
         {
+            Search = search;
+            Status = status;
+            Payment = payment;
+            CurrentPage = Math.Max(1, page);
+
             var user = await _userManager.GetUserAsync(User);
             if (user?.SupermarketId == null) return;
 
-            Orders = await _context.Orders
+            var query = _context.Orders
                 .Include(o => o.OrderItems)
                 .Include(o => o.Customer)
                 .Where(o => o.SupermarketId == user.SupermarketId.Value)
-                .OrderByDescending(o => o.OrderDate)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                var lower = search.ToLower();
+                query = query.Where(o => o.OrderCode.ToLower().Contains(lower)
+                    || (o.Customer != null && o.Customer.FullName.ToLower().Contains(lower)));
+            }
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(o => o.Status == status);
+            if (!string.IsNullOrEmpty(payment))
+                query = query.Where(o => o.PaymentStatus == payment);
+
+            query = query.OrderByDescending(o => o.OrderDate);
+            TotalCount = await query.CountAsync();
+            TotalPages = (int)Math.Ceiling(TotalCount / (double)PageSize);
+
+            Orders = await query.Skip((CurrentPage - 1) * PageSize).Take(PageSize).ToListAsync();
+        }
+
+        public async Task<IActionResult> OnGetUpdateStatusAsync(int id, string status)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user?.SupermarketId == null) return Forbid();
+
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .FirstOrDefaultAsync(o => o.Id == id && o.SupermarketId == user.SupermarketId.Value);
+            if (order == null) return NotFound();
+
+            if (status == "Delivered" && order.Status == "Shipping")
+            {
+                order.Status = "Delivered";
+                order.DeliveredDate = DateTime.UtcNow;
+
+                var points = new LoyaltyPoint
+                {
+                    UserId = order.CustomerId,
+                    Points = (int)(order.TotalAmount / 1000),
+                    Source = "Purchase",
+                    Description = $"Hoàn thành đơn {order.OrderCode}",
+                    ExpiryDate = DateTime.UtcNow.AddMonths(6)
+                };
+                _context.LoyaltyPoints.Add(points);
+            }
+            else if (status == "Cancelled" && order.Status != "Delivered")
+            {
+                order.Status = "Cancelled";
+            }
+            else if (status == "Confirmed" && order.Status == "Pending")
+            {
+                order.Status = "Confirmed";
+            }
+            else if (status == "Shipping" && order.Status == "Confirmed")
+            {
+                order.Status = "Shipping";
+            }
+            else
+            {
+                TempData["Error"] = "Không thể cập nhật trạng thái";
+                return RedirectToPage("Orders");
+            }
+
+            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _hubContext.Clients.Group($"user_{order.CustomerId}")
+                    .SendAsync("ReceiveNotification", "Cập nhật đơn hàng",
+                        $"Đơn hàng #{order.OrderCode} đã chuyển sang trạng thái: {status}", "");
+            }
+            catch { }
+
+            TempData["Success"] = $"Đã cập nhật đơn hàng #{order.OrderCode}";
+            return RedirectToPage("Orders");
         }
     }
 }
