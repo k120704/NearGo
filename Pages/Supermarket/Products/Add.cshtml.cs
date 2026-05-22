@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using NearGo.Data;
 using NearGo.Models;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace NearGo.Pages.Supermarket.Products
 {
@@ -52,9 +53,30 @@ namespace NearGo.Pages.Supermarket.Products
             public DateTime ExpiryDate { get; set; } = DateTime.UtcNow.AddDays(7);
 
             public string? ImageUrl { get; set; }
+            public IFormFile? ImageFile { get; set; }
             public string? Unit { get; set; } = "cái";
             public string? Origin { get; set; }
             public string? Tags { get; set; }
+        }
+
+        private async Task<string> SaveImageAsync(IFormFile? file, string? url)
+        {
+            if (file != null && file.Length > 0)
+            {
+                var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "products");
+                Directory.CreateDirectory(uploadsDir);
+
+                var ext = Path.GetExtension(file.FileName);
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var filePath = Path.Combine(uploadsDir, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
+
+                return $"/uploads/products/{fileName}";
+            }
+
+            return url ?? "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400";
         }
 
         public async Task OnGetAsync()
@@ -88,7 +110,7 @@ namespace NearGo.Pages.Supermarket.Products
                 DiscountPercentage = Math.Round(discountPct, 1),
                 StockQuantity = Input.StockQuantity,
                 ExpiryDate = Input.ExpiryDate,
-                ImageUrl = Input.ImageUrl ?? "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400",
+                ImageUrl = await SaveImageAsync(Input.ImageFile, Input.ImageUrl),
                 Unit = Input.Unit ?? "cái",
                 Origin = Input.Origin,
                 Tags = Input.Tags,
