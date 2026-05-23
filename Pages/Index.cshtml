@@ -96,33 +96,39 @@
 @if (Model.Banners.Any())
 {
     <div class="max-w-7xl mx-auto px-4 mt-10">
-        <div class="swiper bannerSwiper rounded-2xl overflow-hidden shadow-lg" data-aos="fade-up">
-            <div class="swiper-wrapper">
-                @foreach (var banner in Model.Banners)
-                {
-                    <div class="swiper-slide">
-                        <a href="@banner.LinkUrl" class="block relative h-48 md:h-64">
-                            <img src="@banner.ImageUrl" alt="@banner.Title" class="w-full h-full object-cover" />
-                            <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center">
-                                <div class="p-8 md:p-12">
-                                    <h3 class="text-xl md:text-3xl font-bold text-white mb-2">@banner.Title</h3>
-                                    @if (!string.IsNullOrEmpty(banner.Subtitle))
-                                    {
-                                        <p class="text-white/80 text-sm md:text-base mb-4">@banner.Subtitle</p>
-                                    }
-                                    @if (!string.IsNullOrEmpty(banner.ButtonText))
-                                    {
-                                        <span class="inline-flex items-center px-4 py-2 bg-accent-500 text-white font-medium rounded-lg text-sm hover:bg-accent-600 transition-colors">
-                                            @banner.ButtonText <i class="fas fa-arrow-right ml-2"></i>
-                                        </span>
-                                    }
+        <div class="relative rounded-2xl overflow-hidden shadow-xl bg-gray-100 dark:bg-gray-800">
+            <div class="swiper bannerSwiper">
+                <div class="swiper-wrapper">
+                    @foreach (var banner in Model.Banners)
+                    {
+                        <div class="swiper-slide">
+                            <a href="@banner.LinkUrl" class="block relative h-56 md:h-[340px]">
+                                <img src="@banner.ImageUrl" alt="@banner.Title" class="w-full h-full object-cover" loading="lazy" />
+                                <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent">
+                                    <div class="flex items-end md:items-center h-full p-6 md:p-14">
+                                        <div class="max-w-lg">
+                                            <h3 class="text-2xl md:text-4xl font-extrabold text-white mb-2 drop-shadow-lg">@banner.Title</h3>
+                                            @if (!string.IsNullOrEmpty(banner.Subtitle))
+                                            {
+                                                <p class="text-white/80 text-sm md:text-base mb-4 line-clamp-2">@banner.Subtitle</p>
+                                            }
+                                            @if (!string.IsNullOrEmpty(banner.ButtonText))
+                                            {
+                                                <span class="inline-flex items-center gap-2 px-5 py-2.5 bg-accent-500 text-white font-semibold rounded-xl text-sm hover:bg-accent-600 transition-all shadow-lg shadow-accent-500/30">
+                                                    @banner.ButtonText <i class="fas fa-arrow-right text-xs"></i>
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </a>
-                    </div>
-                }
+                            </a>
+                        </div>
+                    }
+                </div>
+                <div class="swiper-pagination !bottom-4"></div>
+                <div class="swiper-button-prev !text-white !w-11 !h-11 !rounded-full !bg-black/40 hover:!bg-black/60 !backdrop-blur-sm after:!text-lg !opacity-0 hover:!opacity-100 !transition-opacity !-left-1"></div>
+                <div class="swiper-button-next !text-white !w-11 !h-11 !rounded-full !bg-black/40 hover:!bg-black/60 !backdrop-blur-sm after:!text-lg !opacity-0 hover:!opacity-100 !transition-opacity !-right-1"></div>
             </div>
-            <div class="swiper-pagination"></div>
         </div>
     </div>
 }
@@ -306,27 +312,36 @@
     </div>
 </section>
 
-<script>
-    new Swiper('.bannerSwiper', {
-        loop: true,
-        autoplay: { delay: 5000 },
-        pagination: { el: '.swiper-pagination', clickable: true }
-    });
-    new Swiper('.flashSaleSwiper', {
-        slidesPerView: 2,
-        spaceBetween: 12,
-        pagination: { el: '.swiper-pagination', clickable: true },
-        breakpoints: { 640: { slidesPerView: 3 }, 768: { slidesPerView: 4 }, 1024: { slidesPerView: 5 } }
-    });
-    function updateTimer() {
-        var now = new Date();
-        var end = new Date();
-        end.setHours(23, 59, 59, 999);
-        var diff = end - now;
-        document.getElementById('hours').textContent = String(Math.floor(diff / 3600000)).padStart(2, '0');
-        document.getElementById('minutes').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-        document.getElementById('seconds').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-    }
-    setInterval(updateTimer, 1000);
-    updateTimer();
-</script>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Swiper('.bannerSwiper', {
+                loop: @(Model.Banners.Count > 1 ? "true" : "false"),
+                autoplay: { delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true },
+                pagination: { el: '.swiper-pagination', clickable: true, dynamicBullets: true },
+                navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                speed: 600,
+                observer: true,
+                observeParents: true,
+                watchOverflow: true
+            });
+            new Swiper('.flashSaleSwiper', {
+                slidesPerView: 2,
+                spaceBetween: 12,
+                pagination: { el: '.swiper-pagination', clickable: true },
+                breakpoints: { 640: { slidesPerView: 3 }, 768: { slidesPerView: 4 }, 1024: { slidesPerView: 5 } }
+            });
+        });
+        function updateTimer() {
+            var now = new Date();
+            var end = new Date();
+            end.setHours(23, 59, 59, 999);
+            var diff = end - now;
+            document.getElementById('hours').textContent = String(Math.floor(diff / 3600000)).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+}

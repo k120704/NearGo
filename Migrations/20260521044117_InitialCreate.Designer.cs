@@ -12,7 +12,7 @@ using NearGo.Data;
 namespace NearGo.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260521025743_InitialCreate")]
+    [Migration("20260521044117_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -252,6 +252,9 @@ namespace NearGo.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AdminNote")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ButtonText")
                         .HasColumnType("nvarchar(max)");
 
@@ -268,8 +271,15 @@ namespace NearGo.Migrations
                     b.Property<string>("LinkUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PaymentStatus")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("SortOrder")
                         .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Subtitle")
                         .HasColumnType("nvarchar(max)");
@@ -279,6 +289,9 @@ namespace NearGo.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

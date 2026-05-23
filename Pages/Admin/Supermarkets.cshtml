@@ -5,8 +5,23 @@
     Layout = "_AdminLayout";
 }
 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Siêu thị (@Model.Supermarkets.Count)</h2>
+        <div class="flex flex-wrap items-center gap-2">
+            <form method="get" class="flex items-center gap-2">
+                <input type="hidden" name="filter" value="@Model.Filter" />
+                <input type="text" name="search" value="@Model.Search" placeholder="Tìm tên, email, SĐT..."
+                       class="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 outline-none w-48" />
+                <button type="submit" class="px-3 py-1.5 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-600">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+            <div class="flex gap-1">
+                <a href="/admin/supermarkets" class="px-3 py-1.5 text-sm rounded-lg @(string.IsNullOrEmpty(Model.Filter) ? "bg-primary-500 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300")">Tất cả</a>
+                <a href="/admin/supermarkets?filter=active" class="px-3 py-1.5 text-sm rounded-lg @(Model.Filter == "active" ? "bg-green-500 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300")">Hoạt động</a>
+                <a href="/admin/supermarkets?filter=inactive" class="px-3 py-1.5 text-sm rounded-lg @(Model.Filter == "inactive" ? "bg-red-500 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300")">Đã khóa</a>
+            </div>
+        </div>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -14,13 +29,17 @@
                 <tr class="text-left text-gray-500 border-b border-gray-100 dark:border-gray-700">
                     <th class="pb-3 font-medium">Tên</th>
                     <th class="pb-3 font-medium">Email</th>
-                    <th class="pb-3 font-medium">Gói</th>
+                    <th class="pb-3 font-medium">Số điện thoại</th>
                     <th class="pb-3 font-medium">Đánh giá</th>
-                    <th class="pb-3 font-medium">Xác thực</th>
                     <th class="pb-3 font-medium">Trạng thái</th>
+                    <th class="pb-3 font-medium">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
+                @if (!Model.Supermarkets.Any())
+                {
+                    <tr><td colspan="6" class="py-8 text-center text-gray-400">Không có siêu thị nào</td></tr>
+                }
                 @foreach (var sm in Model.Supermarkets)
                 {
                     <tr class="border-b border-gray-50 dark:border-gray-800">
@@ -31,21 +50,74 @@
                             </div>
                         </td>
                         <td class="py-3 text-gray-500">@sm.Email</td>
-                        <td class="py-3"><span class="px-2 py-0.5 rounded-full text-xs bg-primary-50 dark:bg-primary-900/20 text-primary-600">@sm.SubscriptionTier</span></td>
+                        <td class="py-3 text-gray-500">@(sm.Phone ?? "—")</td>
                         <td class="py-3">@sm.Rating.ToString("0.0")</td>
                         <td class="py-3">
-                            <span class="px-2 py-0.5 rounded-full text-xs @(sm.IsVerified ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-500")">
-                                @(sm.IsVerified ? "Đã xác thực" : "Chưa")
+                            <span class="px-2 py-0.5 rounded-full text-xs @(sm.IsActive ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600")">
+                                @(sm.IsActive ? "Hoạt động" : "Đã khóa")
                             </span>
                         </td>
                         <td class="py-3">
-                            <span class="px-2 py-0.5 rounded-full text-xs @(sm.IsActive ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600")">
-                                @(sm.IsActive ? "Hoạt động" : "Tạm dừng")
-                            </span>
+                            <form method="post" asp-page-handler="ToggleActive" class="inline" style="display:inline">
+                                <input type="hidden" name="id" value="@sm.Id" />
+                                <input type="hidden" name="action" value="@(sm.IsActive ? "lock" : "unlock")" />
+                                <input type="hidden" name="name" value="@sm.Name" />
+                                <input type="hidden" name="filter" value="@Model.Filter" />
+                                <input type="hidden" name="search" value="@Model.Search" />
+                                <input type="hidden" name="p" value="@Model.CurrentPage" />
+                                <button type="button" onclick="confirmToggleActive(this)" class="px-2 py-1 text-xs rounded-lg @(sm.IsActive ? "bg-red-100 text-red-700 hover:bg-red-200" : "bg-green-100 text-green-700 hover:bg-green-200") transition-colors">
+                                    @(sm.IsActive ? "Khóa" : "Mở khóa")
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="flex items-center justify-between mt-4">
+            <span class="text-sm text-gray-500">Tổng số @Model.TotalCount siêu thị</span>
+            <div class="flex gap-1">
+                @if (Model.CurrentPage > 1)
+                {
+                    <a href="/admin/supermarkets?filter=@Model.Filter&search=@Model.Search&p=@(Model.CurrentPage - 1)" class="px-3 py-1.5 text-sm rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">&laquo;</a>
+                }
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a href="/admin/supermarkets?filter=@Model.Filter&search=@Model.Search&p=@i" class="px-3 py-1.5 text-sm rounded-lg @(i == Model.CurrentPage ? "bg-primary-500 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600")">@i</a>
+                }
+                @if (Model.CurrentPage < Model.TotalPages)
+                {
+                    <a href="/admin/supermarkets?filter=@Model.Filter&search=@Model.Search&p=@(Model.CurrentPage + 1)" class="px-3 py-1.5 text-sm rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">&raquo;</a>
+                }
+            </div>
+        </div>
+    }
 </div>
+@section Scripts {
+    <script>
+        function confirmToggleActive(btn) {
+            const form = btn.closest('form');
+            const action = form.querySelector('input[name="action"]').value;
+            const name = form.querySelector('input[name="name"]').value;
+            const isLock = action === 'lock';
+            Swal.fire({
+                title: isLock ? 'Khóa siêu thị?' : 'Mở khóa siêu thị?',
+                text: isLock ? `Siêu thị "${name}" sẽ không thể đăng nhập và hoạt động.` : `Siêu thị "${name}" sẽ được hoạt động trở lại.`,
+                icon: isLock ? 'warning' : 'question',
+                showCancelButton: true,
+                confirmButtonColor: isLock ? '#dc2626' : '#16a34a',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: isLock ? 'Khóa' : 'Mở khóa',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+    </script>
+}

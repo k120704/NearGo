@@ -1,0 +1,77 @@
+@page
+@model NearGo.Pages.Supermarket.Products.EditModel
+@{
+    ViewData["Title"] = "Sửa sản phẩm";
+    Layout = "_SupermarketLayout";
+}
+<div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 max-w-3xl">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Sửa sản phẩm</h2>
+    <form method="post" class="space-y-4">
+        <div asp-validation-summary="ModelOnly" class="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-xl p-3"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+                <label asp-for="Input.Name" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Tên sản phẩm</label>
+                <input asp-for="Input.Name" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                <span asp-validation-for="Input.Name" class="text-xs text-red-500"></span>
+            </div>
+            <div class="md:col-span-2">
+                <label asp-for="Input.Description" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Mô tả</label>
+                <textarea asp-for="Input.Description" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" rows="3"></textarea>
+            </div>
+            <div>
+                <label asp-for="Input.CategoryId" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Danh mục</label>
+                <select asp-for="Input.CategoryId" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm">
+                    @foreach (var c in Model.Categories)
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.CategoryId" class="text-xs text-red-500"></span>
+            </div>
+            <div>
+                <label asp-for="Input.Unit" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Đơn vị</label>
+                <input asp-for="Input.Unit" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+            </div>
+            <div>
+                <label asp-for="Input.OriginalPrice" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Giá gốc</label>
+                <input asp-for="Input.OriginalPrice" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                <span asp-validation-for="Input.OriginalPrice" class="text-xs text-red-500"></span>
+            </div>
+            <div>
+                <label asp-for="Input.DiscountedPrice" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Giá bán</label>
+                <input asp-for="Input.DiscountedPrice" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                <span asp-validation-for="Input.DiscountedPrice" class="text-xs text-red-500"></span>
+            </div>
+            <div>
+                <label asp-for="Input.StockQuantity" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Số lượng kho</label>
+                <input asp-for="Input.StockQuantity" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                <span asp-validation-for="Input.StockQuantity" class="text-xs text-red-500"></span>
+            </div>
+            <div>
+                <label asp-for="Input.ExpiryDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Hạn sử dụng</label>
+                <input asp-for="Input.ExpiryDate" type="date" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                <span asp-validation-for="Input.ExpiryDate" class="text-xs text-red-500"></span>
+            </div>
+            <div>
+                <label asp-for="Input.ImageUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">URL hình ảnh</label>
+                <input asp-for="Input.ImageUrl" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+            </div>
+            <div>
+                <label asp-for="Input.Origin" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Xuất xứ</label>
+                <input asp-for="Input.Origin" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+            </div>
+            <div class="md:col-span-2">
+                <label class="flex items-center gap-2">
+                    <input asp-for="Input.IsActive" class="w-4 h-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500" />
+                    <span class="text-sm text-gray-700 dark:text-gray-200">Sản phẩm đang bán</span>
+                </label>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-medium rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all">
+                <i class="fas fa-save mr-1"></i> Lưu thay đổi
+            </button>
+            <a href="/supermarket/products" class="px-6 py-2.5 border border-gray-200 dark:border-gray-600 text-gray-500 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Hủy</a>
+        </div>
+    </form>
+</div>

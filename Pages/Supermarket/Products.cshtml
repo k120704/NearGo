@@ -4,46 +4,133 @@
     ViewData["Title"] = "Quản lý sản phẩm";
     Layout = "_SupermarketLayout";
 }
+<style>
+    .btn-add { background:#0369a1; }
+    .btn-add:hover { background:#075985; }
+    .dark .btn-add { background:#0284c7; }
+    .dark .btn-add:hover { background:#0369a1; }
+</style>
 <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Sản phẩm của tôi (@Model.Products.Count)</h2>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Sản phẩm của tôi (@Model.TotalCount)</h2>
+        <a href="/supermarket/products/add" class="btn-add inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-xl shadow transition-all">
+            <i class="fas fa-plus"></i> Thêm sản phẩm
+        </a>
     </div>
+
+    <form method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div>
+            <input type="text" name="search" value="@Model.Search" placeholder="Tìm tên sản phẩm..." class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+        </div>
+        <div>
+            <select name="categoryId" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                <option value="">Tất cả danh mục</option>
+                @foreach (var c in Model.Categories)
+                {
+                    <option value="@c.Id" selected="@(Model.CategoryId == c.Id)">@c.Name</option>
+                }
+            </select>
+        </div>
+        <div>
+            <select name="status" class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                <option value="">Tất cả trạng thái</option>
+                <option value="active" selected="@(Model.Status == "active")">Đang bán</option>
+                <option value="hidden" selected="@(Model.Status == "hidden")">Đã ẩn</option>
+                <option value="out" selected="@(Model.Status == "out")">Hết hàng</option>
+                <option value="expired" selected="@(Model.Status == "expired")">Hết hạn</option>
+            </select>
+        </div>
+        <div class="flex gap-2">
+            <button type="submit" class="flex-1 px-4 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-xl hover:bg-primary-700 transition-colors">
+                <i class="fas fa-filter mr-1"></i> Lọc
+            </button>
+            <a href="/supermarket/products" class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 text-gray-500 text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <i class="fas fa-undo"></i>
+            </a>
+        </div>
+    </form>
+
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
                 <tr class="text-left text-gray-500 border-b border-gray-100 dark:border-gray-700">
                     <th class="pb-3 font-medium">Sản phẩm</th>
-                    <th class="pb-3 font-medium">Giá</th>
+                    <th class="pb-3 font-medium">Danh mục</th>
+                    <th class="pb-3 font-medium">Giá bán</th>
                     <th class="pb-3 font-medium">Giảm</th>
                     <th class="pb-3 font-medium">Kho</th>
                     <th class="pb-3 font-medium">Đã bán</th>
                     <th class="pb-3 font-medium">HSD</th>
                     <th class="pb-3 font-medium">Trạng thái</th>
+                    <th class="pb-3 font-medium text-right">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
+                @if (!Model.Products.Any())
+                {
+                    <tr><td colspan="9" class="py-8 text-center text-gray-400">Chưa có sản phẩm nào</td></tr>
+                }
                 @foreach (var p in Model.Products)
                 {
                     <tr class="border-b border-gray-50 dark:border-gray-800">
                         <td class="py-3">
                             <div class="flex items-center gap-3">
-                                <img src="@p.ImageUrl" alt="@p.Name" class="w-10 h-10 rounded-lg object-cover" />
-                                <span class="text-gray-900 dark:text-white font-medium truncate max-w-[200px]">@p.Name</span>
+                                <img src="@p.ImageUrl" alt="@p.Name" class="w-10 h-10 rounded-lg object-cover shrink-0" />
+                                <span class="text-gray-900 dark:text-white font-medium truncate max-w-[180px]">@p.Name</span>
                             </div>
                         </td>
+                        <td class="py-3 text-gray-500">@p.Category?.Name</td>
                         <td class="py-3 text-gray-900 dark:text-white font-medium">@p.DiscountedPrice.ToString("N0")đ</td>
                         <td class="py-3 text-red-500">-@((int)p.DiscountPercentage)%</td>
-                        <td class="py-3"><span class="@(p.StockQuantity < 10 ? "text-red-500" : "text-green-500")">@p.StockQuantity</span></td>
-                        <td class="py-3 text-gray-500">@p.SoldCount</td>
-                        <td class="py-3 text-gray-500">@p.ExpiryDate.ToString("dd/MM")</td>
                         <td class="py-3">
-                            <span class="px-2 py-0.5 rounded-full text-xs @(p.IsActive && p.StockQuantity > 0 ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600")">
-                                @(p.IsActive && p.StockQuantity > 0 ? "Đang bán" : "Ẩn")
-                            </span>
+                            <span class="@(p.StockQuantity < 10 ? "text-red-500 font-medium" : "text-green-500")">@p.StockQuantity</span>
+                        </td>
+                        <td class="py-3 text-gray-500">@p.SoldCount</td>
+                        <td class="py-3 text-xs @(p.ExpiryDate < DateTime.UtcNow.AddDays(3) ? "text-red-500 font-medium" : "text-gray-500")">@p.ExpiryDate.ToString("dd/MM/yyyy")</td>
+                        <td class="py-3">
+                            @if (p.ExpiryDate < DateTime.UtcNow)
+                            {
+                                <span class="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-500">Hết hạn</span>
+                            }
+                            else if (p.StockQuantity == 0)
+                            {
+                                <span class="px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-600">Hết hàng</span>
+                            }
+                            else if (!p.IsActive)
+                            {
+                                <span class="px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-600">Đã ẩn</span>
+                            }
+                            else
+                            {
+                                <span class="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-600">Đang bán</span>
+                            }
+                        </td>
+                        <td class="py-3 text-right">
+                            <div class="flex items-center justify-end gap-1">
+                                <a href="/supermarket/products/edit?id=@p.Id" class="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors" title="Sửa">
+                                    <i class="fas fa-pen text-xs"></i>
+                                </a>
+                                <a href="/supermarket/products/delete?id=@p.Id" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Xóa" onclick="return confirm('Xóa sản phẩm @p.Name?')">
+                                    <i class="fas fa-trash-can text-xs"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="flex items-center justify-center gap-2 mt-6">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <a href="@Url.Page("Products", new { page = i, search = Model.Search, categoryId = Model.CategoryId, status = Model.Status })"
+                    class="px-3 py-1.5 text-sm rounded-lg @(i == Model.CurrentPage ? "bg-primary-500 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600")">
+                    @i
+                </a>
+            }
+        </div>
+    }
 </div>
