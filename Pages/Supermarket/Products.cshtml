@@ -110,7 +110,7 @@
                                 <a href="/supermarket/products/edit?id=@p.Id" class="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors" title="Sửa">
                                     <i class="fas fa-pen text-xs"></i>
                                 </a>
-                                <a href="/supermarket/products/delete?id=@p.Id" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Xóa" onclick="return confirm('Xóa sản phẩm @p.Name?')">
+                                <a href="/supermarket/products?handler=delete&amp;id=@p.Id" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Xóa" onclick="return confirm('Xóa sản phẩm @p.Name?')">
                                     <i class="fas fa-trash-can text-xs"></i>
                                 </a>
                             </div>
