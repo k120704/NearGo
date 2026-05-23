@@ -52,11 +52,51 @@ async function toggleWishlist(productId) {
 var connection = null;
 function initSignalR() {
     if (typeof signalR === 'undefined') return;
+    if (connection && connection.state === signalR.HubConnectionState.Connected) return;
     connection = new signalR.HubConnectionBuilder().withUrl('/notificationHub').build();
     connection.on('ReceiveNotification', function(title, message, url) {
         Swal.fire({ icon: 'info', title: title, text: message, toast: true, position: 'top-end', showConfirmButton: true, timer: 5000 });
+        loadNotifications();
     });
     connection.start().catch(function(err) { });
+}
+
+async function loadNotifications() {
+    try {
+        var [countResp, listResp] = await Promise.all([
+            fetch('/notifications?handler=UnreadCount'),
+            fetch('/notifications?handler=List')
+        ]);
+        var countData = await countResp.json();
+        updateUnreadBadge(countData.count);
+        var notifData = await listResp.json();
+        updateNotificationList(notifData);
+    } catch(e) { }
+}
+
+function updateUnreadBadge(count) {
+    var el = document.querySelector('[x-data]');
+    if (el && window.Alpine) {
+        Alpine.$data(el).unreadCount = count;
+    }
+}
+
+function updateNotificationList(list) {
+    var el = document.querySelector('[x-data]');
+    if (el && window.Alpine) {
+        Alpine.$data(el).notifList = list;
+    }
+}
+
+function timeAgo(dateStr) {
+    var now = new Date();
+    var date = new Date(dateStr);
+    var diff = Math.floor((now - date) / 1000);
+    if (diff < 60) return 'Vài giây trước';
+    if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
+    if (diff < 2592000) return Math.floor(diff / 86400) + ' ngày trước';
+    return date.toLocaleDateString('vi-VN');
 }
 
 document.addEventListener('DOMContentLoaded', function() {

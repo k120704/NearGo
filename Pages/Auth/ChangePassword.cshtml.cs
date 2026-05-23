@@ -51,8 +51,8 @@ namespace NearGo.Pages.Auth
             if (result.Succeeded)
             {
                 await _signInManager.RefreshSignInAsync(user);
-                ViewData["Message"] = "Mật khẩu đã được thay đổi thành công.";
-                return Page();
+                TempData["SuccessMessage"] = "Mật khẩu đã được thay đổi thành công.";
+                return Redirect("/");
             }
 
             foreach (var error in result.Errors)

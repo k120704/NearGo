@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NearGo.Data;
+using NearGo.Hubs;
 using NearGo.Models;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
@@ -15,11 +17,14 @@ namespace NearGo.Pages.Supermarket.Products
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public AddModel(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public AddModel(ApplicationDbContext context, UserManager<AppUser> userManager,
+            IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _userManager = userManager;
+            _hubContext = hubContext;
         }
 
         [BindProperty]
@@ -95,6 +100,23 @@ namespace NearGo.Pages.Supermarket.Products
             var user = await _userManager.GetUserAsync(User);
             if (user?.SupermarketId == null) return Forbid();
 
+            var supermarket = await _context.Supermarkets.FindAsync(user.SupermarketId.Value);
+            if (supermarket == null) return Forbid();
+
+            if (supermarket.SubscriptionTier == "Free")
+            {
+                var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+                var productsThisMonth = await _context.Products
+                    .CountAsync(p => p.SupermarketId == user.SupermarketId.Value && p.CreatedAt >= startOfMonth);
+
+                if (productsThisMonth >= 10)
+                {
+                    ModelState.AddModelError(string.Empty, "Bạn đã đạt giới hạn 10 sản phẩm/tháng ở gói Free. Vui lòng nâng cấp lên Premium để đăng không giới hạn.");
+                    Categories = await _context.Categories.Where(c => c.IsActive).OrderBy(c => c.SortOrder).ToListAsync();
+                    return Page();
+                }
+            }
+
             var discountedPrice = Input.DiscountedPrice > 0 ? Input.DiscountedPrice : Input.OriginalPrice;
             var discountPct = Input.OriginalPrice > 0 ? (double)((Input.OriginalPrice - discountedPrice) / Input.OriginalPrice * 100) : 0;
 
@@ -120,6 +142,51 @@ namespace NearGo.Pages.Supermarket.Products
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
+
+            var supermarketName = supermarket.Name;
+            var ownerId = user.Id;
+
+            var followerIds = await _context.Database
+                .SqlQuery<string>($"SELECT UserId FROM UserFollowedSupermarkets WHERE SupermarketId = {user.SupermarketId.Value}")
+                .ToListAsync();
+
+            if (followerIds.Count > 0)
+            {
+                var productUrl = $"/products/detail?id={product.Id}";
+                var title = $"Sản phẩm mới từ {supermarketName}";
+                var message = $"{product.Name} - chỉ {product.DiscountedPrice:N0}đ";
+
+                foreach (var fid in followerIds)
+                {
+                    if (fid == ownerId) continue;
+
+                    _context.Notifications.Add(new Notification
+                    {
+                        UserId = fid,
+                        Title = title,
+                        Message = message,
+                        Type = "NewProduct",
+                        RelatedUrl = productUrl,
+                        ImageUrl = product.ImageUrl,
+                        IsRead = false,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+
+                foreach (var fid in followerIds)
+                {
+                    if (fid == ownerId) continue;
+
+                    try
+                    {
+                        await _hubContext.Clients.Group($"user_{fid}")
+                            .SendAsync("ReceiveNotification", title, message, productUrl);
+                    }
+                    catch { }
+                }
+            }
 
             TempData["Success"] = "Thêm sản phẩm thành công!";
             return RedirectToPage("/Supermarket/Products");
