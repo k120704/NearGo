@@ -204,5 +204,42 @@ namespace NearGo.Services
                 .Where(o => o.SupermarketId == supermarketId && o.Status != "Cancelled")
                 .CountAsync();
         }
+
+        public async Task UpdateOrderTransaction(int orderId, string? sessionId, string paymentMethod)
+        {
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order != null)
+            {
+                order.TransactionId = sessionId;
+                order.PaymentMethod = paymentMethod;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<List<Order>> GetOrdersBySessionId(string sessionId)
+        {
+            return await _context.Orders
+                .Where(o => o.TransactionId == sessionId)
+                .ToListAsync();
+        }
+
+        public async Task CreatePaymentTransaction(int orderId, string paymentMethod, string? transactionId, string? bankCode, decimal amount, string status, string? responseCode, string? responseMessage)
+        {
+            var transaction = new PaymentTransaction
+            {
+                OrderId = orderId,
+                PaymentMethod = paymentMethod,
+                TransactionId = transactionId,
+                BankCode = bankCode,
+                Amount = amount,
+                Status = status,
+                ResponseCode = responseCode,
+                ResponseMessage = responseMessage,
+                CreatedAt = DateTime.UtcNow,
+                PaidAt = status == "Success" ? DateTime.UtcNow : null
+            };
+            _context.PaymentTransactions.Add(transaction);
+            await _context.SaveChangesAsync();
+        }
     }
 }

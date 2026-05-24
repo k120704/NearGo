@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using NearGo.Data;
 using NearGo.Models;
+using NearGo.Services;
 
 namespace NearGo.Pages.Supermarket
 {
@@ -13,11 +14,13 @@ namespace NearGo.Pages.Supermarket
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
+        private readonly VNPayService _vnPayService;
 
-        public UpgradeModel(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public UpgradeModel(ApplicationDbContext context, UserManager<AppUser> userManager, VNPayService vnPayService)
         {
             _context = context;
             _userManager = userManager;
+            _vnPayService = vnPayService;
         }
 
         public NearGo.Models.Supermarket? Supermarket { get; set; }
@@ -50,37 +53,11 @@ namespace NearGo.Pages.Supermarket
                 return RedirectToPage("/Supermarket/Upgrade");
             }
 
-            var now = DateTime.UtcNow;
+            var txnRef = $"SUB-{supermarket.Id}";
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            var paymentUrl = _vnPayService.CreatePaymentUrl(199000, txnRef, ipAddress);
 
-            supermarket.SubscriptionTier = "Premium";
-            supermarket.SubscriptionExpiry = now.AddMonths(1);
-
-            _context.Subscriptions.Add(new Subscription
-            {
-                SupermarketId = supermarket.Id,
-                Tier = "Premium",
-                Amount = 199000,
-                StartDate = now,
-                EndDate = now.AddMonths(1),
-                Status = "Active",
-                CreatedAt = now
-            });
-
-            _context.PlatformFees.Add(new PlatformFee
-            {
-                SupermarketId = supermarket.Id,
-                FeeType = "Subscription",
-                Amount = 199000,
-                Description = "Đăng ký gói Premium 1 tháng",
-                Status = "Paid",
-                CreatedAt = now,
-                PaidAt = now
-            });
-
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Nâng cấp lên gói Premium thành công! Giờ bạn có thể đăng sản phẩm không giới hạn.";
-            return RedirectToPage("/Supermarket/Dashboard");
+            return Redirect(paymentUrl);
         }
     }
 }
