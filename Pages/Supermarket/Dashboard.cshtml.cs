@@ -24,6 +24,7 @@ namespace NearGo.Pages.Supermarket
         public decimal TotalRevenue { get; set; }
         public int TotalOrders { get; set; }
         public int TotalProducts { get; set; }
+        public int ProductsThisMonth { get; set; }
         public List<Order> RecentOrders { get; set; } = new();
         public List<Product> TopProducts { get; set; } = new();
 
@@ -44,6 +45,10 @@ namespace NearGo.Pages.Supermarket
 
             TotalProducts = await _context.Products
                 .CountAsync(p => p.SupermarketId == Supermarket.Id);
+
+            var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            ProductsThisMonth = await _context.Products
+                .CountAsync(p => p.SupermarketId == Supermarket.Id && p.CreatedAt >= startOfMonth);
 
             RecentOrders = await _context.Orders
                 .Include(o => o.Customer)

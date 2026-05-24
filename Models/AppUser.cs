@@ -18,5 +18,6 @@ namespace NearGo.Models
         public ICollection<LoyaltyPoint> LoyaltyPoints { get; set; } = new List<LoyaltyPoint>();
         public ICollection<RecentlyViewed> RecentlyViewed { get; set; } = new List<RecentlyViewed>();
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public ICollection<Supermarket> FollowedSupermarkets { get; set; } = new List<Supermarket>();
     }
 }

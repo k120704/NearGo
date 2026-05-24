@@ -52,6 +52,16 @@ namespace NearGo.Pages.Auth
             public string? TaxCode { get; set; }
 
             public string? Description { get; set; }
+
+            [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
+            [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu phải từ 6 ký tự")]
+            [DataType(DataType.Password)]
+            public string Password { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "Xác nhận mật khẩu là bắt buộc")]
+            [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
+            [DataType(DataType.Password)]
+            public string ConfirmPassword { get; set; } = string.Empty;
         }
 
         public void OnGet() { }
@@ -67,8 +77,6 @@ namespace NearGo.Pages.Auth
                 return Page();
             }
 
-            var password = GeneratePassword();
-
             var user = new AppUser
             {
                 UserName = Input.Email,
@@ -80,7 +88,7 @@ namespace NearGo.Pages.Auth
                 CreatedAt = DateTime.UtcNow
             };
 
-            var createResult = await _userManager.CreateAsync(user, password);
+            var createResult = await _userManager.CreateAsync(user, Input.Password);
             if (!createResult.Succeeded)
             {
                 foreach (var error in createResult.Errors)
@@ -115,27 +123,10 @@ namespace NearGo.Pages.Auth
             user.SupermarketId = supermarket.Id;
             await _userManager.UpdateAsync(user);
 
-            await SendPasswordEmail(Input.Email, Input.SupermarketName, password);
+            await SendNotificationEmail(Input.Email, Input.SupermarketName);
 
-            TempData["Success"] = "Đăng ký siêu thị thành công! Mật khẩu đã được gửi vào email của bạn.";
+            TempData["Success"] = "Đăng ký siêu thị thành công!";
             return RedirectToPage("/Auth/Login");
-        }
-
-        private string GeneratePassword()
-        {
-            var letters = "abcdefghijklmnopqrstuvwxyz";
-            var digits = "0123456789";
-            var random = new Random();
-            var password = new char[6];
-            for (int i = 0; i < 5; i++)
-                password[i] = letters[random.Next(letters.Length)];
-            password[5] = digits[random.Next(digits.Length)];
-            for (int i = 0; i < 5; i++)
-            {
-                var j = random.Next(i + 1, 6);
-                (password[i], password[j]) = (password[j], password[i]);
-            }
-            return "Market@" + new string(password);
         }
 
         private string GenerateSlug(string name)
@@ -151,7 +142,7 @@ namespace NearGo.Pages.Auth
             return slug;
         }
 
-        private async Task SendPasswordEmail(string email, string supermarketName, string password)
+        private async Task SendNotificationEmail(string email, string supermarketName)
         {
             var subject = "Đăng ký tài khoản siêu thị NearGo thành công";
             var body = $@"
@@ -164,8 +155,6 @@ namespace NearGo.Pages.Auth
                         <p>Tài khoản siêu thị của bạn đã được tạo thành công trên NearGo.</p>
                         <p><strong>Thông tin đăng nhập:</strong></p>
                         <p>Email: {email}</p>
-                        <p>Mật khẩu: <strong>{password}</strong></p>
-                        <p style='color: #ef4444; font-size: 13px;'>Vui lòng đổi mật khẩu sau khi đăng nhập lần đầu.</p>
                         <a href='https://localhost:5001/auth/login' style='display: inline-block; background: #0284c7; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 12px;'>Đăng nhập ngay</a>
                     </div>
                 </div>";

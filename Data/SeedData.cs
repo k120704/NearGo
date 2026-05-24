@@ -13,7 +13,17 @@ namespace NearGo.Data
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            await context.Database.MigrateAsync();
+            await context.Database.EnsureCreatedAsync();
+
+            await context.Database.ExecuteSqlRawAsync(@"
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'UserFollowedSupermarkets')
+                CREATE TABLE UserFollowedSupermarkets (
+                    UserId nvarchar(450) NOT NULL,
+                    SupermarketId int NOT NULL,
+                    PRIMARY KEY (UserId, SupermarketId),
+                    CONSTRAINT FK_UserFollowed_Users FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id) ON DELETE CASCADE,
+                    CONSTRAINT FK_UserFollowed_Supermarkets FOREIGN KEY (SupermarketId) REFERENCES Supermarkets(Id) ON DELETE CASCADE
+                )");
 
             if (await roleManager.RoleExistsAsync("Admin")) return;
 

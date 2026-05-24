@@ -148,6 +148,22 @@ namespace NearGo.Data
             {
                 e.HasOne(cm => cm.User).WithMany().HasForeignKey(cm => cm.UserId).OnDelete(DeleteBehavior.Cascade);
             });
+
+            builder.Entity<AppUser>(e =>
+            {
+                e.HasOne(u => u.Supermarket)
+                    .WithMany()
+                    .HasForeignKey(u => u.SupermarketId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            builder.Entity<AppUser>()
+                .HasMany(u => u.FollowedSupermarkets)
+                .WithMany(s => s.Followers)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UserFollowedSupermarkets",
+                    j => j.HasOne<Supermarket>().WithMany().HasForeignKey("SupermarketId").OnDelete(DeleteBehavior.Cascade),
+                    j => j.HasOne<AppUser>().WithMany().HasForeignKey("UserId").OnDelete(DeleteBehavior.Cascade));
         }
     }
 }

@@ -18,20 +18,34 @@
                 <div class="w-20 h-20 rounded-xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl bg-white">
                     <img src="@Model.Supermarket.LogoUrl" alt="@Model.Supermarket.Name" class="w-full h-full object-cover" />
                 </div>
-                <div class="pt-10">
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">@Model.Supermarket.Name</h1>
-                    <div class="flex items-center gap-3 mt-1">
-                        <div class="flex items-center gap-1">
-                            @for (int i = 0; i < 5; i++)
-                            {
-                                <i class="fas fa-star text-xs @(i < Math.Round(Model.Supermarket.Rating) ? "text-yellow-400" : "text-gray-200 dark:text-gray-600")"></i>
-                            }
-                            <span class="text-sm text-gray-500 ml-1">@Model.Supermarket.Rating.ToString("0.0")</span>
+                <div class="pt-10 flex-1">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">@Model.Supermarket.Name</h1>
+                            <div class="flex items-center gap-3 mt-1">
+                                <div class="flex items-center gap-1">
+                                    @for (int i = 0; i < 5; i++)
+                                    {
+                                        <i class="fas fa-star text-xs @(i < Math.Round(Model.Supermarket.Rating) ? "text-yellow-400" : "text-gray-200 dark:text-gray-600")"></i>
+                                    }
+                                    <span class="text-sm text-gray-500 ml-1">@Model.Supermarket.Rating.ToString("0.0")</span>
+                                </div>
+                                <span class="text-sm text-gray-400">@Model.Supermarket.ReviewCount đánh giá</span>
+                                @if (Model.Supermarket.IsVerified)
+                                {
+                                    <span class="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-full"><i class="fas fa-check-circle mr-1"></i>Đã xác thực</span>
+                                }
+                            </div>
                         </div>
-                        <span class="text-sm text-gray-400">@Model.Supermarket.ReviewCount đánh giá</span>
-                        @if (Model.Supermarket.IsVerified)
+                        @if (SignInManager.IsSignedIn(User))
                         {
-                            <span class="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-full"><i class="fas fa-check-circle mr-1"></i>Đã xác thực</span>
+                            <form method="post" asp-page-handler="ToggleFollow" asp-route-slug="@Model.Supermarket.Slug">
+                                <button type="submit"
+                                        class="px-4 py-2 text-sm font-medium rounded-xl transition-all @(Model.IsFollowing ? "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600" : "bg-primary-600 text-white hover:bg-primary-700 shadow-md")">
+                                    <i class="fas @(Model.IsFollowing ? "fa-check" : "fa-plus") mr-1"></i>
+                                    @(Model.IsFollowing ? "Đang theo dõi" : "Theo dõi")
+                                </button>
+                            </form>
                         }
                     </div>
                 </div>
