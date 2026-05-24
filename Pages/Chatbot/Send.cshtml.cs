@@ -7,25 +7,31 @@ using NearGo.Services;
 
 namespace NearGo.Pages.Chatbot
 {
+    public class ChatRequest
+    {
+        public string Message { get; set; } = string.Empty;
+    }
+
+    [IgnoreAntiforgeryToken]
     public class SendModel : PageModel
     {
-        private readonly OpenAIService _openAIService;
+        private readonly GeminiService _geminiService;
+        private readonly ChatbotContextService _contextService;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
 
-        public SendModel(OpenAIService openAIService, ApplicationDbContext context, UserManager<AppUser> userManager)
+        public SendModel(GeminiService geminiService, ChatbotContextService contextService, ApplicationDbContext context, UserManager<AppUser> userManager)
         {
-            _openAIService = openAIService;
+            _geminiService = geminiService;
+            _contextService = contextService;
             _context = context;
             _userManager = userManager;
         }
 
-        [BindProperty]
-        public string Message { get; set; } = string.Empty;
-
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync([FromBody] ChatRequest request)
         {
-            var response = await _openAIService.GetChatResponse(Message);
+            var ctx = await _contextService.BuildContext(request.Message, User);
+            var response = await _geminiService.GetChatResponse(request.Message, null, ctx.ContextText);
 
             if (User.Identity?.IsAuthenticated == true)
             {
@@ -33,14 +39,14 @@ namespace NearGo.Pages.Chatbot
                 _context.ChatMessages.Add(new NearGo.Models.ChatMessage
                 {
                     UserId = userId,
-                    UserMessage = Message,
+                    UserMessage = request.Message,
                     AiResponse = response,
                     CreatedAt = DateTime.UtcNow
                 });
                 await _context.SaveChangesAsync();
             }
 
-            return new JsonResult(new { response });
+            return new JsonResult(new { response, products = ctx.Products, supermarkets = ctx.Supermarkets });
         }
     }
 }
