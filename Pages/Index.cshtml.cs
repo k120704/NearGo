@@ -16,7 +16,6 @@ namespace NearGo.Pages
         }
 
         public List<Category> Categories { get; set; } = new();
-        public List<Banner> Banners { get; set; } = new();
         public List<Product> FeaturedProducts { get; set; } = new();
         public List<NearGo.Models.Supermarket> Supermarkets { get; set; } = new();
 
@@ -28,11 +27,6 @@ namespace NearGo.Pages
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.SortOrder)
                 .Take(16)
-                .ToListAsync();
-
-            Banners = await _context.Banners
-                .Where(b => b.IsActive && b.Status == "Approved")
-                .OrderBy(b => b.SortOrder)
                 .ToListAsync();
 
             FeaturedProducts = await _context.Products

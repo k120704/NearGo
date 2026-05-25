@@ -18,7 +18,6 @@ namespace NearGo.Data
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<Review> Reviews => Set<Review>();
         public DbSet<Wishlist> Wishlists => Set<Wishlist>();
-        public DbSet<Banner> Banners => Set<Banner>();
         public DbSet<LoyaltyPoint> LoyaltyPoints => Set<LoyaltyPoint>();
         public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
         public DbSet<RecentlyViewed> RecentlyVieweds => Set<RecentlyViewed>();
@@ -115,11 +114,6 @@ namespace NearGo.Data
             builder.Entity<PlatformFee>(e =>
             {
                 e.HasOne(pf => pf.Supermarket).WithMany(s => s.PlatformFees).HasForeignKey(pf => pf.SupermarketId).OnDelete(DeleteBehavior.Cascade);
-            });
-
-            builder.Entity<Banner>(e =>
-            {
-                e.HasOne(b => b.Supermarket).WithMany(s => s.Banners).HasForeignKey(b => b.SupermarketId).OnDelete(DeleteBehavior.SetNull);
             });
 
             builder.Entity<Voucher>(e =>

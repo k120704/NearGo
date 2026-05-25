@@ -235,13 +235,6 @@ namespace NearGo.Data
             context.Products.AddRange(products);
             await context.SaveChangesAsync();
 
-            var banners = new List<Banner>
-            {
-                new Banner { Title = "Sản phẩm Organic", Subtitle = "Thực phẩm sạch, an toàn cho gia đình", ImageUrl = "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=1200", LinkUrl = "/products?category=san-pham-organic", ButtonText = "Khám phá", SortOrder = 1, IsActive = true, Status = "Approved", PaymentStatus = "Paid", PackageDays = 30, PackagePrice = 200000 },
-                new Banner { Title = "Tiết kiệm cùng NearGo", Subtitle = "Mua thực phẩm cận date - Chất lượng tốt, giá tốt", ImageUrl = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200", LinkUrl = "/products", ButtonText = "Xem ngay", SortOrder = 2, IsActive = true, Status = "Approved", PaymentStatus = "Paid", PackageDays = 30, PackagePrice = 200000 }
-            };
-            context.Banners.AddRange(banners);
-
             var vouchers = new List<Voucher>();
             for (int i = 0; i < 30; i++)
             {

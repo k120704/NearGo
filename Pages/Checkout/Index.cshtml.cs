@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using NearGo.Data;
 using NearGo.Models;
 using NearGo.Services;
 using System.ComponentModel.DataAnnotations;
@@ -11,12 +13,14 @@ namespace NearGo.Pages.Checkout
     [Authorize(Roles = "Customer")]
     public class IndexModel : PageModel
     {
+        private readonly ApplicationDbContext _context;
         private readonly CartService _cartService;
         private readonly OrderService _orderService;
         private readonly UserManager<AppUser> _userManager;
 
-        public IndexModel(CartService cartService, OrderService orderService, UserManager<AppUser> userManager)
+        public IndexModel(ApplicationDbContext context, CartService cartService, OrderService orderService, UserManager<AppUser> userManager)
         {
+            _context = context;
             _cartService = cartService;
             _orderService = orderService;
             _userManager = userManager;
@@ -27,6 +31,8 @@ namespace NearGo.Pages.Checkout
 
         public List<NearGo.Models.CartItem> CartItems { get; set; } = new();
         public decimal SubTotal { get; set; }
+        public int PointsBalance { get; set; }
+        public bool CanUsePoints => PointsBalance >= 1000;
 
         public class InputModel
         {
@@ -44,6 +50,8 @@ namespace NearGo.Pages.Checkout
 
             [Required(ErrorMessage = "Vui lòng chọn phương thức thanh toán")]
             public string PaymentMethod { get; set; } = "COD";
+
+            public bool UsePoints { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -55,6 +63,10 @@ namespace NearGo.Pages.Checkout
                 return RedirectToPage("/Cart/Index");
             }
             SubTotal = _cartService.CalculateCartTotal(CartItems);
+
+            PointsBalance = (await _context.LoyaltyPoints
+                .Where(lp => lp.UserId == userId && lp.ExpiryDate > DateTime.UtcNow)
+                .SumAsync(lp => (int?)lp.Points)) ?? 0;
 
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
@@ -83,7 +95,7 @@ namespace NearGo.Pages.Checkout
             {
                 var order = await _orderService.CreateOrder(
                     userId, smId, Input.ShippingAddress,
-                    Input.CustomerName, Input.CustomerPhone, Input.Note);
+                    Input.CustomerName, Input.CustomerPhone, Input.Note, null, Input.UsePoints);
 
                 if (Input.PaymentMethod == "VNPay")
                 {

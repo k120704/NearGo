@@ -92,47 +92,6 @@
     </div>
 </div>
 
-<!-- Banner Carousel -->
-@if (Model.Banners.Any())
-{
-    <div class="max-w-7xl mx-auto px-4 mt-10">
-        <div class="relative rounded-2xl overflow-hidden shadow-xl bg-gray-100 dark:bg-gray-800">
-            <div class="swiper bannerSwiper">
-                <div class="swiper-wrapper">
-                    @foreach (var banner in Model.Banners)
-                    {
-                        <div class="swiper-slide">
-                            <a href="@banner.LinkUrl" class="block relative h-56 md:h-[340px]">
-                                <img src="@banner.ImageUrl" alt="@banner.Title" class="w-full h-full object-cover" loading="lazy" />
-                                <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent">
-                                    <div class="flex items-end md:items-center h-full p-6 md:p-14">
-                                        <div class="max-w-lg">
-                                            <h3 class="text-2xl md:text-4xl font-extrabold text-white mb-2 drop-shadow-lg">@banner.Title</h3>
-                                            @if (!string.IsNullOrEmpty(banner.Subtitle))
-                                            {
-                                                <p class="text-white/80 text-sm md:text-base mb-4 line-clamp-2">@banner.Subtitle</p>
-                                            }
-                                            @if (!string.IsNullOrEmpty(banner.ButtonText))
-                                            {
-                                                <span class="inline-flex items-center gap-2 px-5 py-2.5 bg-accent-500 text-white font-semibold rounded-xl text-sm hover:bg-accent-600 transition-all shadow-lg shadow-accent-500/30">
-                                                    @banner.ButtonText <i class="fas fa-arrow-right text-xs"></i>
-                                                </span>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    }
-                </div>
-                <div class="swiper-pagination !bottom-4"></div>
-                <div class="swiper-button-prev !text-white !w-11 !h-11 !rounded-full !bg-black/40 hover:!bg-black/60 !backdrop-blur-sm after:!text-lg !opacity-0 hover:!opacity-100 !transition-opacity !-left-1"></div>
-                <div class="swiper-button-next !text-white !w-11 !h-11 !rounded-full !bg-black/40 hover:!bg-black/60 !backdrop-blur-sm after:!text-lg !opacity-0 hover:!opacity-100 !transition-opacity !-right-1"></div>
-            </div>
-        </div>
-    </div>
-}
-
 <!-- Featured Products -->
 <section class="max-w-7xl mx-auto px-4 mt-10">
     <div class="flex items-center justify-between mb-6" data-aos="fade-up">
@@ -220,19 +179,4 @@
     </div>
 </section>
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            new Swiper('.bannerSwiper', {
-                loop: @(Model.Banners.Count > 1 ? "true" : "false"),
-                autoplay: { delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true },
-                pagination: { el: '.swiper-pagination', clickable: true, dynamicBullets: true },
-                navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-                speed: 600,
-                observer: true,
-                observeParents: true,
-                watchOverflow: true
-            });
-        });
-    </script>
-}
+

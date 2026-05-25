@@ -18,7 +18,6 @@ namespace NearGo.Pages.Payment
         }
 
         public bool IsSuccess { get; set; }
-        public bool IsBannerPayment { get; set; }
         public string? TransactionId { get; set; }
         public string? ErrorMessage { get; set; }
 
@@ -34,32 +33,12 @@ namespace NearGo.Pages.Payment
                 IsSuccess = true;
                 TransactionId = vnp_TransactionNo;
 
-                if (vnp_TxnRef.StartsWith("BNR-"))
+                var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderCode == vnp_TxnRef);
+                if (order != null)
                 {
-                    var parts = vnp_TxnRef.Split('-');
-                    if (parts.Length >= 2 && int.TryParse(parts[1], out var bannerId))
-                    {
-                        var banner = await _context.Banners.FindAsync(bannerId);
-                        if (banner != null)
-                        {
-                            banner.PaymentStatus = "Paid";
-                            banner.Status = "Pending";
-                            banner.TransactionId = vnp_TxnRef;
-                            await _context.SaveChangesAsync();
-                        }
-                    }
-                    TempData["Success"] = "Thanh toán banner thành công! Đã gửi yêu cầu chờ admin duyệt.";
-                    return RedirectToPage("/Supermarket/Banners");
-                }
-                else
-                {
-                    var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderCode == vnp_TxnRef);
-                    if (order != null)
-                    {
-                        order.PaymentStatus = "Paid";
-                        order.Status = "Pending";
-                        await _context.SaveChangesAsync();
-                    }
+                    order.PaymentStatus = "Paid";
+                    order.Status = "Pending";
+                    await _context.SaveChangesAsync();
                 }
             }
             else
