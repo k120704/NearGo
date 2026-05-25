@@ -9,7 +9,6 @@ using NearGo.Models;
 namespace NearGo.Pages
 {
     [Authorize(Roles = "Customer")]
-    [IgnoreAntiforgeryToken]
     public class WishlistModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -21,34 +20,37 @@ namespace NearGo.Pages
             _userManager = userManager;
         }
 
-        public List<Product> Products { get; set; } = new();
+        public List<NearGo.Models.Supermarket> FollowedSupermarkets { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            var userId = _userManager.GetUserId(User)!;
-            Products = await _context.Wishlists
-                .Include(w => w.Product).ThenInclude(p => p.Supermarket)
-                .Where(w => w.UserId == userId && w.Product.IsActive)
-                .Select(w => w.Product)
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return;
+
+            FollowedSupermarkets = await _context.Supermarkets
+                .Where(s => s.Followers.Any(f => f.Id == user.Id))
+                .OrderByDescending(s => s.Rating)
                 .ToListAsync();
         }
 
-        public async Task<IActionResult> OnPostToggleAsync(int productId)
+        public async Task<IActionResult> OnPostToggleFollowAsync(int supermarketId)
         {
-            var userId = _userManager.GetUserId(User)!;
-            var existing = await _context.Wishlists
-                .FirstOrDefaultAsync(w => w.UserId == userId && w.ProductId == productId);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
 
-            if (existing != null)
+            var supermarket = await _context.Supermarkets
+                .Include(s => s.Followers)
+                .FirstOrDefaultAsync(s => s.Id == supermarketId);
+            if (supermarket == null) return NotFound();
+
+            var follower = supermarket.Followers.FirstOrDefault(f => f.Id == user.Id);
+            if (follower != null)
             {
-                _context.Wishlists.Remove(existing);
-                await _context.SaveChangesAsync();
-                return new JsonResult(new { liked = false });
+                supermarket.Followers.Remove(follower);
             }
 
-            _context.Wishlists.Add(new Wishlist { UserId = userId, ProductId = productId });
             await _context.SaveChangesAsync();
-            return new JsonResult(new { liked = true });
+            return RedirectToPage();
         }
     }
 }

@@ -18,9 +18,7 @@ namespace NearGo.Pages
         public List<Category> Categories { get; set; } = new();
         public List<Banner> Banners { get; set; } = new();
         public List<Product> FeaturedProducts { get; set; } = new();
-        public List<FlashSaleProduct> ActiveFlashSales { get; set; } = new();
         public List<NearGo.Models.Supermarket> Supermarkets { get; set; } = new();
-        public List<SurpriseBox> SurpriseBoxes { get; set; } = new();
 
         public async Task OnGetAsync()
         {
@@ -46,28 +44,10 @@ namespace NearGo.Pages
                 .Take(15)
                 .ToListAsync();
 
-            var activeFlashSale = await _context.FlashSales
-                .Where(f => f.IsActive && f.StartTime <= now && f.EndTime > now)
-                .FirstOrDefaultAsync();
-
-            if (activeFlashSale != null)
-            {
-                ActiveFlashSales = await _context.FlashSaleProducts
-                    .Include(fp => fp.Product).ThenInclude(p => p.Supermarket)
-                    .Where(fp => fp.FlashSaleId == activeFlashSale.Id && fp.Product.IsActive && fp.Product.StockQuantity > 0)
-                    .Take(10)
-                    .ToListAsync();
-            }
-
             Supermarkets = await _context.Supermarkets
                 .Where(s => s.IsActive)
                 .OrderByDescending(s => s.Rating)
                 .Take(12)
-                .ToListAsync();
-
-            SurpriseBoxes = await _context.SurpriseBoxes
-                .Where(sb => sb.IsActive && sb.StockQuantity > 0)
-                .Take(3)
                 .ToListAsync();
         }
     }

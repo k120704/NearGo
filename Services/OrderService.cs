@@ -120,17 +120,6 @@ namespace NearGo.Services
             };
             _context.Notifications.Add(notification);
 
-            var supermarketNotification = new Notification
-            {
-                UserId = userId,
-                Title = "Đơn hàng mới",
-                Message = $"Bạn nhận được đơn hàng mới {orderCode}",
-                Type = "Order",
-                RelatedUrl = $"/supermarket/orders/detail?id={order.Id}",
-                IsRead = false
-            };
-            _context.Notifications.Add(supermarketNotification);
-
             await _context.SaveChangesAsync();
             return order;
         }

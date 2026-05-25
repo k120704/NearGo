@@ -15,15 +15,11 @@ namespace NearGo.Data
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Voucher> Vouchers => Set<Voucher>();
-        public DbSet<FlashSale> FlashSales => Set<FlashSale>();
-        public DbSet<FlashSaleProduct> FlashSaleProducts => Set<FlashSaleProduct>();
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<Review> Reviews => Set<Review>();
         public DbSet<Wishlist> Wishlists => Set<Wishlist>();
         public DbSet<Banner> Banners => Set<Banner>();
         public DbSet<LoyaltyPoint> LoyaltyPoints => Set<LoyaltyPoint>();
-        public DbSet<SurpriseBox> SurpriseBoxes => Set<SurpriseBox>();
-        public DbSet<SurpriseBoxProduct> SurpriseBoxProducts => Set<SurpriseBoxProduct>();
         public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
         public DbSet<RecentlyViewed> RecentlyVieweds => Set<RecentlyViewed>();
         public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
@@ -95,12 +91,6 @@ namespace NearGo.Data
                 e.HasIndex(n => n.IsRead);
             });
 
-            builder.Entity<FlashSaleProduct>(e =>
-            {
-                e.HasOne(fp => fp.FlashSale).WithMany(f => f.FlashSaleProducts).HasForeignKey(fp => fp.FlashSaleId).OnDelete(DeleteBehavior.Cascade);
-                e.HasOne(fp => fp.Product).WithMany(p => p.FlashSaleProducts).HasForeignKey(fp => fp.ProductId).OnDelete(DeleteBehavior.Restrict);
-            });
-
             builder.Entity<LoyaltyPoint>(e =>
             {
                 e.HasOne(lp => lp.User).WithMany(u => u.LoyaltyPoints).HasForeignKey(lp => lp.UserId).OnDelete(DeleteBehavior.Cascade);
@@ -125,12 +115,6 @@ namespace NearGo.Data
             builder.Entity<PlatformFee>(e =>
             {
                 e.HasOne(pf => pf.Supermarket).WithMany(s => s.PlatformFees).HasForeignKey(pf => pf.SupermarketId).OnDelete(DeleteBehavior.Cascade);
-            });
-
-            builder.Entity<SurpriseBoxProduct>(e =>
-            {
-                e.HasOne(sbp => sbp.SurpriseBox).WithMany(sb => sb.SurpriseBoxProducts).HasForeignKey(sbp => sbp.SurpriseBoxId).OnDelete(DeleteBehavior.Cascade);
-                e.HasOne(sbp => sbp.Product).WithMany().HasForeignKey(sbp => sbp.ProductId).OnDelete(DeleteBehavior.Restrict);
             });
 
             builder.Entity<Banner>(e =>

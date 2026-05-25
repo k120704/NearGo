@@ -127,7 +127,6 @@ NearGo/
 │   ├── Customer/    # Customer dashboard
 │   ├── Products/    # Sản phẩm
 │   ├── Supermarket/ # Supermarket dashboard
-│   ├── FlashSales/  # Flash Sale
 │   ├── Chatbot/     # AI Chatbot API
 │   └── Shared/      # Layouts, partial views
 ├── Models/          # Domain models
@@ -160,8 +159,7 @@ ENTRYPOINT ["dotnet", "NearGo.dll"]
 - ✅ Đăng ký, đăng nhập, phân quyền (Admin/Supermarket/Customer)
 - ✅ Quản lý sản phẩm cận date
 - ✅ Giỏ hàng, thanh toán (COD/VNPay/MoMo)
-- ✅ Flash Sale, Voucher giảm giá
-- ✅ Hộp bất ngờ (Surprise Box)
+- ✅ Voucher giảm giá
 - ✅ Dashboard Admin với biểu đồ
 - ✅ Dashboard Supermarket với doanh thu
 - ✅ Dashboard Customer với lịch sử mua hàng
