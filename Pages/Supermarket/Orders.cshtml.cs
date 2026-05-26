@@ -81,16 +81,6 @@ namespace NearGo.Pages.Supermarket
             {
                 order.Status = "Delivered";
                 order.DeliveredDate = DateTime.UtcNow;
-
-                var points = new LoyaltyPoint
-                {
-                    UserId = order.CustomerId,
-                    Points = (int)(order.TotalAmount / 1000),
-                    Source = "Purchase",
-                    Description = $"Hoàn thành đơn {order.OrderCode}",
-                    ExpiryDate = DateTime.UtcNow.AddMonths(6)
-                };
-                _context.LoyaltyPoints.Add(points);
             }
             else if (status == "Cancelled" && order.Status != "Delivered")
             {

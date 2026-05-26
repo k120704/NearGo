@@ -92,104 +92,6 @@
     </div>
 </div>
 
-<!-- Banner Carousel -->
-@if (Model.Banners.Any())
-{
-    <div class="max-w-7xl mx-auto px-4 mt-10">
-        <div class="relative rounded-2xl overflow-hidden shadow-xl bg-gray-100 dark:bg-gray-800">
-            <div class="swiper bannerSwiper">
-                <div class="swiper-wrapper">
-                    @foreach (var banner in Model.Banners)
-                    {
-                        <div class="swiper-slide">
-                            <a href="@banner.LinkUrl" class="block relative h-56 md:h-[340px]">
-                                <img src="@banner.ImageUrl" alt="@banner.Title" class="w-full h-full object-cover" loading="lazy" />
-                                <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent">
-                                    <div class="flex items-end md:items-center h-full p-6 md:p-14">
-                                        <div class="max-w-lg">
-                                            <h3 class="text-2xl md:text-4xl font-extrabold text-white mb-2 drop-shadow-lg">@banner.Title</h3>
-                                            @if (!string.IsNullOrEmpty(banner.Subtitle))
-                                            {
-                                                <p class="text-white/80 text-sm md:text-base mb-4 line-clamp-2">@banner.Subtitle</p>
-                                            }
-                                            @if (!string.IsNullOrEmpty(banner.ButtonText))
-                                            {
-                                                <span class="inline-flex items-center gap-2 px-5 py-2.5 bg-accent-500 text-white font-semibold rounded-xl text-sm hover:bg-accent-600 transition-all shadow-lg shadow-accent-500/30">
-                                                    @banner.ButtonText <i class="fas fa-arrow-right text-xs"></i>
-                                                </span>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    }
-                </div>
-                <div class="swiper-pagination !bottom-4"></div>
-                <div class="swiper-button-prev !text-white !w-11 !h-11 !rounded-full !bg-black/40 hover:!bg-black/60 !backdrop-blur-sm after:!text-lg !opacity-0 hover:!opacity-100 !transition-opacity !-left-1"></div>
-                <div class="swiper-button-next !text-white !w-11 !h-11 !rounded-full !bg-black/40 hover:!bg-black/60 !backdrop-blur-sm after:!text-lg !opacity-0 hover:!opacity-100 !transition-opacity !-right-1"></div>
-            </div>
-        </div>
-    </div>
-}
-
-<!-- Flash Sale -->
-@if (Model.ActiveFlashSales.Any())
-{
-    <section class="max-w-7xl mx-auto px-4 mt-10">
-        <div class="bg-red-600 rounded-2xl p-6 md:p-8 shadow-xl" data-aos="fade-up">
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-bolt text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-white">Flash Sale</h2>
-                        <p class="text-white/70 text-sm">Kết thúc trong</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 text-white font-mono text-lg" id="flashSaleTimer">
-                    <span class="bg-white/20 px-2 py-1 rounded-lg" id="hours">00</span>
-                    <span>:</span>
-                    <span class="bg-white/20 px-2 py-1 rounded-lg" id="minutes">00</span>
-                    <span>:</span>
-                    <span class="bg-white/20 px-2 py-1 rounded-lg" id="seconds">00</span>
-                </div>
-            </div>
-            <div class="swiper flashSaleSwiper">
-                <div class="swiper-wrapper">
-                    @foreach (var fp in Model.ActiveFlashSales.Take(10))
-                    {
-                        <div class="swiper-slide">
-                            <a href="/products/detail?id=@fp.Product.Id" class="block bg-white dark:bg-gray-800 rounded-xl overflow-hidden hover:shadow-lg transition-shadow group">
-                                <div class="relative">
-                                    <img src="@fp.Product.ImageUrl" alt="@fp.Product.Name" class="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-300" />
-                                    <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg">-@((int)((1 - fp.SalePrice / fp.Product.OriginalPrice) * 100))%</span>
-                                    <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                                        <div class="bg-white/20 rounded-full h-1.5 overflow-hidden">
-                                            <div class="bg-accent-400 h-full rounded-full" style="width: @(fp.SoldQuantity * 100 / (fp.MaxQuantity > 0 ? fp.MaxQuantity : 1))%"></div>
-                                        </div>
-                                        <p class="text-white text-xs mt-1">Đã bán @fp.SoldQuantity</p>
-                                    </div>
-                                </div>
-                                <div class="p-3">
-                                    <p class="text-xs text-gray-500 truncate">@fp.Product.Supermarket.Name</p>
-                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate mt-1">@fp.Product.Name</h3>
-                                    <div class="flex items-center gap-2 mt-2">
-                                        <span class="text-sm font-bold text-red-500">@fp.SalePrice.ToString("N0")đ</span>
-                                        <span class="text-xs text-gray-400 line-through">@fp.Product.OriginalPrice.ToString("N0")đ</span>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    }
-                </div>
-                <div class="swiper-pagination mt-4"></div>
-            </div>
-        </div>
-    </section>
-}
-
 <!-- Featured Products -->
 <section class="max-w-7xl mx-auto px-4 mt-10">
     <div class="flex items-center justify-between mb-6" data-aos="fade-up">
@@ -248,41 +150,6 @@
     </div>
 </section>
 
-<!-- Surprise Boxes -->
-@if (Model.SurpriseBoxes.Any())
-{
-    <section class="max-w-7xl mx-auto px-4 mt-10">
-        <div class="flex items-center justify-between mb-6" data-aos="fade-up">
-            <div>
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hộp bất ngờ</h2>
-                <p class="text-sm text-gray-500">Nhận sản phẩm ngẫu nhiên với giá cực sốc</p>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            @foreach (var box in Model.SurpriseBoxes)
-            {
-                <div class="bg-gradient-to-br from-purple-500 via-purple-600 to-pink-500 rounded-2xl p-6 text-white shadow-xl" data-aos="fade-up">
-                    <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mb-4">
-                        <i class="fas fa-gift text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold mb-2">@box.Name</h3>
-                    <p class="text-white/80 text-sm mb-4">@box.Description</p>
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <span class="text-2xl font-bold">@box.Price.ToString("N0")đ</span>
-                            <span class="text-white/60 line-through ml-2 text-sm">@box.OriginalValue.ToString("N0")đ</span>
-                        </div>
-                        <span class="bg-white/20 px-2 py-1 rounded-lg text-xs">Tiết kiệm @((int)((1 - box.Price / box.OriginalValue) * 100))%</span>
-                    </div>
-                    <a href="/surprise-boxes/detail?id=@box.Id" class="block w-full py-2.5 bg-white text-purple-600 font-semibold rounded-xl text-center hover:bg-gray-100 transition-colors">
-                        Khám phá ngay
-                    </a>
-                </div>
-            }
-        </div>
-    </section>
-}
-
 <!-- Supermarkets -->
 <section class="max-w-7xl mx-auto px-4 mt-10 mb-10">
     <div class="flex items-center justify-between mb-6" data-aos="fade-up">
@@ -312,36 +179,4 @@
     </div>
 </section>
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            new Swiper('.bannerSwiper', {
-                loop: @(Model.Banners.Count > 1 ? "true" : "false"),
-                autoplay: { delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true },
-                pagination: { el: '.swiper-pagination', clickable: true, dynamicBullets: true },
-                navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-                speed: 600,
-                observer: true,
-                observeParents: true,
-                watchOverflow: true
-            });
-            new Swiper('.flashSaleSwiper', {
-                slidesPerView: 2,
-                spaceBetween: 12,
-                pagination: { el: '.swiper-pagination', clickable: true },
-                breakpoints: { 640: { slidesPerView: 3 }, 768: { slidesPerView: 4 }, 1024: { slidesPerView: 5 } }
-            });
-        });
-        function updateTimer() {
-            var now = new Date();
-            var end = new Date();
-            end.setHours(23, 59, 59, 999);
-            var diff = end - now;
-            document.getElementById('hours').textContent = String(Math.floor(diff / 3600000)).padStart(2, '0');
-            document.getElementById('minutes').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-            document.getElementById('seconds').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-        }
-        setInterval(updateTimer, 1000);
-        updateTimer();
-    </script>
-}
+

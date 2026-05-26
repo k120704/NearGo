@@ -81,15 +81,41 @@
                         <span class="text-gray-500">Tạm tính</span>
                         <span class="text-gray-900 dark:text-white">@Model.SubTotal.ToString("N0")đ</span>
                     </div>
+                    @if (Model.Input.UsePoints && Model.CanUsePoints)
+                    {
+                        <div class="flex justify-between text-green-600">
+                            <span>Giảm điểm thưởng</span>
+                            <span>-10,000đ</span>
+                        </div>
+                    }
                     <div class="flex justify-between">
                         <span class="text-gray-500">Phí vận chuyển</span>
                         <span class="text-green-500">Miễn phí</span>
                     </div>
                 </div>
                 <hr class="border-gray-100 dark:border-gray-700 my-4" />
+                @if (Model.CanUsePoints)
+                {
+                    <label class="flex items-center gap-3 p-3 bg-accent-50 dark:bg-accent-900/20 rounded-xl mb-4 cursor-pointer">
+                        <input type="checkbox" asp-for="Input.UsePoints" class="rounded text-accent-500 focus:ring-accent-500" />
+                        <div class="text-sm">
+                            <span class="font-medium text-gray-900 dark:text-white">Dùng 1.000 điểm thưởng</span>
+                            <p class="text-xs text-gray-500">Giảm 10.000đ cho đơn hàng này</p>
+                        </div>
+                    </label>
+                }
+                else
+                {
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl mb-4">
+                        <i class="fas fa-coins text-sm text-gray-400"></i>
+                        <span class="text-xs text-gray-500">Bạn có <strong>@Model.PointsBalance</strong> điểm thưởng. Cần 1.000 điểm để đổi giảm 10.000đ.</span>
+                    </div>
+                }
                 <div class="flex justify-between items-center">
                     <span class="font-semibold text-gray-900 dark:text-white">Tổng cộng</span>
-                    <span class="text-xl font-bold text-red-500">@Model.SubTotal.ToString("N0")đ</span>
+                    <span class="text-xl font-bold text-red-500">
+                        @((Model.SubTotal - (Model.Input.UsePoints && Model.CanUsePoints ? 10000 : 0)).ToString("N0"))đ
+                    </span>
                 </div>
                 <button type="submit" class="w-full mt-6 py-3 bg-primary-600 text-white font-medium rounded-xl hover:bg-primary-700 shadow-md transition-all">
                     <i class="fas fa-check mr-2"></i> Đặt hàng
