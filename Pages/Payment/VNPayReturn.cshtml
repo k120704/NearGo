@@ -31,24 +31,9 @@
                 <h1 class="text-xl font-bold text-gray-900 mb-2">Thanh toán thất bại</h1>
                 <p class="text-gray-500 mb-6">@Model.ErrorMessage</p>
             }
-            @if (Model.IsBannerPayment)
-            {
-                <a href="/supermarket/banners" class="inline-block px-6 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors">
-                    <i class="fas fa-images mr-2"></i>Về Banner
-                </a>
-            }
-            else if (Model.IsSubscriptionPayment)
-            {
-                <a href="/supermarket/dashboard" class="inline-block px-6 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors">
-                    <i class="fas fa-store mr-2"></i>Về Dashboard
-                </a>
-            }
-            else
-            {
-                <a href="/customer/orders" class="inline-block px-6 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors">
-                    <i class="fas fa-clipboard-list mr-2"></i>Xem đơn hàng
-                </a>
-            }
+            <a href="/customer/orders" class="inline-block px-6 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors">
+                <i class="fas fa-clipboard-list mr-2"></i>Xem đơn hàng
+            </a>
         </div>
     </div>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />

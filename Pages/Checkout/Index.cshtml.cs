@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using NearGo.Data;
 using NearGo.Models;
 using NearGo.Services;
 using System.ComponentModel.DataAnnotations;
@@ -11,20 +13,17 @@ namespace NearGo.Pages.Checkout
     [Authorize(Roles = "Customer")]
     public class IndexModel : PageModel
     {
+        private readonly ApplicationDbContext _context;
         private readonly CartService _cartService;
         private readonly OrderService _orderService;
         private readonly UserManager<AppUser> _userManager;
-        private readonly VNPayService _vnPayService;
-        private readonly MomoService _momoService;
 
-        public IndexModel(CartService cartService, OrderService orderService,
-            UserManager<AppUser> userManager, VNPayService vnPayService, MomoService momoService)
+        public IndexModel(ApplicationDbContext context, CartService cartService, OrderService orderService, UserManager<AppUser> userManager)
         {
+            _context = context;
             _cartService = cartService;
             _orderService = orderService;
             _userManager = userManager;
-            _vnPayService = vnPayService;
-            _momoService = momoService;
         }
 
         [BindProperty]
@@ -32,6 +31,8 @@ namespace NearGo.Pages.Checkout
 
         public List<NearGo.Models.CartItem> CartItems { get; set; } = new();
         public decimal SubTotal { get; set; }
+        public int PointsBalance { get; set; }
+        public bool CanUsePoints => PointsBalance >= 1000;
 
         public class InputModel
         {
@@ -49,6 +50,8 @@ namespace NearGo.Pages.Checkout
 
             [Required(ErrorMessage = "Vui lòng chọn phương thức thanh toán")]
             public string PaymentMethod { get; set; } = "COD";
+
+            public bool UsePoints { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -60,6 +63,10 @@ namespace NearGo.Pages.Checkout
                 return RedirectToPage("/Cart/Index");
             }
             SubTotal = _cartService.CalculateCartTotal(CartItems);
+
+            PointsBalance = (await _context.LoyaltyPoints
+                .Where(lp => lp.UserId == userId && lp.ExpiryDate > DateTime.UtcNow)
+                .SumAsync(lp => (int?)lp.Points)) ?? 0;
 
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
@@ -84,59 +91,25 @@ namespace NearGo.Pages.Checkout
             SubTotal = _cartService.CalculateCartTotal(CartItems);
 
             var supermarketIds = CartItems.Select(c => c.Product.SupermarketId).Distinct();
-
-            if (Input.PaymentMethod == "VNPay")
-            {
-                var sessionId = Guid.NewGuid().ToString("N");
-                var createdOrders = new List<Order>();
-                decimal totalAmount = 0;
-
-                foreach (var smId in supermarketIds)
-                {
-                    var order = await _orderService.CreateOrder(
-                        userId, smId, Input.ShippingAddress,
-                        Input.CustomerName, Input.CustomerPhone, Input.Note);
-
-                    await _orderService.UpdateOrderTransaction(order.Id, sessionId, "VNPay");
-                    createdOrders.Add(order);
-                    totalAmount += order.TotalAmount;
-                }
-
-                var txnRef = createdOrders.Count == 1
-                    ? createdOrders[0].OrderCode
-                    : $"BATCH-{sessionId}";
-
-                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
-                var paymentUrl = _vnPayService.CreatePaymentUrl(totalAmount, txnRef, ipAddress);
-                return Redirect(paymentUrl);
-            }
-
-            if (Input.PaymentMethod == "Momo")
-            {
-                Order? firstOrder = null;
-                decimal totalAmount = 0;
-
-                foreach (var smId in supermarketIds)
-                {
-                    var order = await _orderService.CreateOrder(
-                        userId, smId, Input.ShippingAddress,
-                        Input.CustomerName, Input.CustomerPhone, Input.Note);
-
-                    await _orderService.UpdateOrderTransaction(order.Id, null, "Momo");
-                    firstOrder ??= order;
-                    totalAmount += order.TotalAmount;
-                }
-
-                var paymentUrl = await _momoService.CreatePaymentUrl(
-                    totalAmount, firstOrder!.OrderCode, Input.CustomerName, Input.CustomerPhone);
-                return Redirect(paymentUrl);
-            }
-
             foreach (var smId in supermarketIds)
             {
-                await _orderService.CreateOrder(
+                var order = await _orderService.CreateOrder(
                     userId, smId, Input.ShippingAddress,
-                    Input.CustomerName, Input.CustomerPhone, Input.Note);
+                    Input.CustomerName, Input.CustomerPhone, Input.Note, null, Input.UsePoints);
+
+                if (Input.PaymentMethod == "VNPay")
+                {
+                    var vnpay = HttpContext.RequestServices.GetRequiredService<VNPayService>();
+                    var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+                    var paymentUrl = vnpay.CreatePaymentUrl(order.TotalAmount, order.OrderCode, ipAddress);
+                    return Redirect(paymentUrl);
+                }
+                else if (Input.PaymentMethod == "Momo")
+                {
+                    var momo = HttpContext.RequestServices.GetRequiredService<MomoService>();
+                    var paymentUrl = await momo.CreatePaymentUrl(order.TotalAmount, order.OrderCode, Input.CustomerName, Input.CustomerPhone);
+                    return Redirect(paymentUrl);
+                }
             }
 
             TempData["Success"] = "Đặt hàng thành công!";
