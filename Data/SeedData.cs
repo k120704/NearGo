@@ -364,7 +364,7 @@ namespace NearGo.Data
 
     ("Dầu gội Sunsilk 650ml", 85000, 20, 45, DateTime.UtcNow.AddDays(40), "https://images.unsplash.com/photo-1526947425960-945c6e72858f?q=80&w=400", 10, "chai", "Thái Lan", "Dầu gội Sunsilk mượt mà tổ ong", "dầu gội,sunsilk"),
 
-    ("Kem đánh răng P/S 225g", 35000, 25, 80, DateTime.UtcNow.AddDays(50), "https://images.unsplash.com/photo-1559591937-abc8722d2f5b?q=80&w=400", 10, "tuýp", "Việt Nam", "Kem đánh răng P/S trắng sáng", "kem đánh răng,p/s"),
+    ("Kem đánh răng P/S 225g", 35000, 25, 80, DateTime.UtcNow.AddDays(50), "https://imgs.search.brave.com/dhtjk6dCiqb0ebtFcVAUT-LjpJFeAmZp-pjOKQ8uDsA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/dGdkZC52bi8vTmV3/cy8xNDU4NTMzLy9o/dW9uZy1kYW4tY2Fj/aC1jaG9uLWtpbmgt/bWF0LXBodS1ob3At/dm9pLWtodW9uLW1h/dC0zLTg0NXg1NTAu/anBn?q=80&w=400", 10, "tuýp", "Việt Nam", "Kem đánh răng P/S trắng sáng", "kem đánh răng,p/s"),
 
     ("Bánh tráng trộn 500g", 25000, 20, 100, DateTime.UtcNow.AddDays(15), "https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=400", 11, "gói", "Việt Nam", "Bánh tráng trộn sẵn gia vị", "bánh tráng,đồ ăn vặt"),
 

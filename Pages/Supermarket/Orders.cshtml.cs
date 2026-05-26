@@ -33,12 +33,12 @@ namespace NearGo.Pages.Supermarket
         public string? Payment { get; set; }
         private const int PageSize = 15;
 
-        public async Task OnGetAsync(string? search, string? status, string? payment, int page = 1)
+        public async Task OnGetAsync(string? search, string? status, string? payment, int p = 1)
         {
             Search = search;
             Status = status;
             Payment = payment;
-            CurrentPage = Math.Max(1, page);
+            CurrentPage = Math.Max(1, p);
 
             var user = await _userManager.GetUserAsync(User);
             if (user?.SupermarketId == null) return;

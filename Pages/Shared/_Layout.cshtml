@@ -60,7 +60,7 @@
         </script>
     }
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased">
     <div x-data="{ cartCount: 0, unreadCount: 0, notifList: [], notifOpen: false, isDark: localStorage.getItem('theme') === 'dark' }" x-init="
         if (isDark) document.documentElement.classList.add('dark');
         fetch('/cart/cartapi?handler=count').then(r => r.text()).then(c => cartCount = parseInt(c) || 0);

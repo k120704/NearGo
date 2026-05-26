@@ -29,7 +29,7 @@ namespace NearGo.Pages.Products
         public int TotalCount { get; set; }
         private const int PageSize = 20;
 
-        public async Task OnGetAsync(string? category, string? area, string? sort, string? search, decimal? minPrice, decimal? maxPrice, int page = 1)
+        public async Task OnGetAsync(string? category, string? area, string? sort, string? search, decimal? minPrice, decimal? maxPrice, int p = 1)
         {
             CategorySlug = category;
             Area = area;
@@ -37,7 +37,7 @@ namespace NearGo.Pages.Products
             SearchQuery = search;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
-            CurrentPage = Math.Max(1, page);
+            CurrentPage = Math.Max(1, p);
 
             Categories = await _context.Categories.Where(c => c.IsActive).OrderBy(c => c.SortOrder).ToListAsync();
 
