@@ -56,10 +56,13 @@ builder.Services.AddAuthorization(options =>
 builder.Services.Configure<VNPaySettings>(builder.Configuration.GetSection("VNPay"));
 builder.Services.Configure<MomoSettings>(builder.Configuration.GetSection("Momo"));
 builder.Services.Configure<OpenAISettings>(builder.Configuration.GetSection("OpenAI"));
+builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("Gemini"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 
 builder.Services.AddHttpClient<MomoService>();
 builder.Services.AddHttpClient<OpenAIService>();
+builder.Services.AddHttpClient<GeminiService>();
+builder.Services.AddScoped<ChatbotContextService>();
 builder.Services.AddScoped<VNPayService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();

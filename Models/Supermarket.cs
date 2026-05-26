@@ -23,7 +23,6 @@ namespace NearGo.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public ICollection<Product> Products { get; set; } = new List<Product>();
         public ICollection<Order> Orders { get; set; } = new List<Order>();
-        public ICollection<Banner> Banners { get; set; } = new List<Banner>();
         public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
         public ICollection<PlatformFee> PlatformFees { get; set; } = new List<PlatformFee>();
         public ICollection<AppUser> Followers { get; set; } = new List<AppUser>();

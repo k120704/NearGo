@@ -9,11 +9,13 @@ namespace NearGo.Services
     {
         private readonly OpenAISettings _settings;
         private readonly HttpClient _httpClient;
+        private readonly ILogger<OpenAIService> _logger;
 
-        public OpenAIService(IOptions<OpenAISettings> settings, HttpClient httpClient)
+        public OpenAIService(IOptions<OpenAISettings> settings, HttpClient httpClient, ILogger<OpenAIService> logger)
         {
             _settings = settings.Value;
             _httpClient = httpClient;
+            _logger = logger;
         }
 
         public async Task<string> GetChatResponse(string userMessage, List<ChatHistoryItem>? history = null)
@@ -58,6 +60,7 @@ namespace NearGo.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
+                    _logger.LogError("OpenAI API error: {StatusCode} - {Response}", response.StatusCode, responseJson);
                     return "Xin lỗi, tôi đang gặp sự cố kết nối. Vui lòng thử lại sau.";
                 }
 
@@ -67,10 +70,12 @@ namespace NearGo.Services
                     return result.choices[0].message.content.ToString();
                 }
 
+                _logger.LogWarning("OpenAI returned unexpected format: {Response}", responseJson);
                 return "Xin lỗi, tôi không thể xử lý yêu cầu này ngay bây giờ.";
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "OpenAI service exception");
                 return "Xin lỗi, tôi đang gặp sự cố kết nối. Vui lòng thử lại sau.";
             }
         }

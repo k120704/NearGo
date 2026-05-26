@@ -235,32 +235,6 @@ namespace NearGo.Data
             context.Products.AddRange(products);
             await context.SaveChangesAsync();
 
-            var banners = new List<Banner>
-            {
-                new Banner { Title = "Flash Sale Siêu Hời", Subtitle = "Giảm đến 50% sản phẩm cận date", ImageUrl = "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200", LinkUrl = "/flashsales", ButtonText = "Mua ngay", SortOrder = 1, IsActive = true, Status = "Approved", PaymentStatus = "Paid", PackageDays = 30, PackagePrice = 200000 },
-                new Banner { Title = "Sản phẩm Organic", Subtitle = "Thực phẩm sạch, an toàn cho gia đình", ImageUrl = "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=1200", LinkUrl = "/products?category=san-pham-organic", ButtonText = "Khám phá", SortOrder = 2, IsActive = true, Status = "Approved", PaymentStatus = "Paid", PackageDays = 30, PackagePrice = 200000 },
-                new Banner { Title = "Tiết kiệm cùng NearGo", Subtitle = "Mua thực phẩm cận date - Chất lượng tốt, giá tốt", ImageUrl = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200", LinkUrl = "/products", ButtonText = "Xem ngay", SortOrder = 3, IsActive = true, Status = "Approved", PaymentStatus = "Paid", PackageDays = 30, PackagePrice = 200000 }
-            };
-            context.Banners.AddRange(banners);
-
-            var testBanner = new Banner
-            {
-                Title = "Khuyến Mãi Tháng 6",
-                Subtitle = "Giảm sốc 30% thực phẩm cận date - Có giá trị đến hết tháng",
-                ImageUrl = "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200",
-                LinkUrl = "/flashsales",
-                ButtonText = "Xem ngay",
-                SupermarketId = 1,
-                Status = "Pending",
-                PaymentStatus = "Paid",
-                PackageDays = 7,
-                PackagePrice = 50000,
-                IsActive = false,
-                SortOrder = 0,
-                CreatedAt = DateTime.UtcNow
-            };
-            context.Banners.Add(testBanner);
-
             var vouchers = new List<Voucher>();
             for (int i = 0; i < 30; i++)
             {
@@ -282,37 +256,6 @@ namespace NearGo.Data
                 });
             }
             context.Vouchers.AddRange(vouchers);
-
-            var flashSales = new List<FlashSale>
-            {
-                new FlashSale { Title = "Flash Sale Cuối Tuần", Description = "Giảm sốc cuối tuần", ImageUrl = "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800", StartTime = DateTime.UtcNow.AddHours(-2), EndTime = DateTime.UtcNow.AddHours(22), IsActive = true },
-                new FlashSale { Title = "Flash Sale Thực Phẩm", Description = "Giảm giá thực phẩm cận date", ImageUrl = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800", StartTime = DateTime.UtcNow.AddDays(-1), EndTime = DateTime.UtcNow.AddDays(1), IsActive = true },
-                new FlashSale { Title = "Sale Đồ Uống", Description = "Giảm đến 40% đồ uống", ImageUrl = "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=800", StartTime = DateTime.UtcNow.AddHours(2), EndTime = DateTime.UtcNow.AddDays(2), IsActive = true }
-            };
-            context.FlashSales.AddRange(flashSales);
-            await context.SaveChangesAsync();
-
-            for (int i = 0; i < 20 && i < products.Count; i++)
-            {
-                var fp = new FlashSaleProduct
-                {
-                    FlashSaleId = flashSales[i % 3].Id,
-                    ProductId = products[i].Id,
-                    SalePrice = products[i].DiscountedPrice * 0.7m,
-                    MaxQuantity = products[i].StockQuantity / 2,
-                    SoldQuantity = rand.Next(0, products[i].StockQuantity / 3)
-                };
-                context.FlashSaleProducts.Add(fp);
-            }
-
-            var surpriseBoxes = new List<SurpriseBox>
-            {
-                new SurpriseBox { Name = "Hộp bất ngờ Thực phẩm", Description = "5 sản phẩm thực phẩm cận date ngẫu nhiên - giá siêu rẻ!", Price = 100000, OriginalValue = 250000, ImageUrl = "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400", StockQuantity = 50, IsActive = true },
-                new SurpriseBox { Name = "Hộp bất ngờ Đồ uống", Description = "6 lon/chai đồ uống ngẫu nhiên - tiết kiệm 50%!", Price = 80000, OriginalValue = 180000, ImageUrl = "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400", StockQuantity = 30, IsActive = true },
-                new SurpriseBox { Name = "Hộp bất ngờ Snack", Description = "10 gói snack ngẫu nhiên - cho ngày xem phim!", Price = 60000, OriginalValue = 150000, ImageUrl = "https://images.unsplash.com/photo-1576618148400-af8e4f30e04b?w=400", StockQuantity = 40, IsActive = true }
-            };
-            context.SurpriseBoxes.AddRange(surpriseBoxes);
-            await context.SaveChangesAsync();
 
             await context.SaveChangesAsync();
         }

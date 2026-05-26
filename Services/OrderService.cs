@@ -14,7 +14,7 @@ namespace NearGo.Services
         }
 
         public async Task<Order> CreateOrder(string userId, int supermarketId, string shippingAddress,
-            string? customerName, string? customerPhone, string? note, int? voucherId = null, int loyaltyPointsUsed = 0)
+            string? customerName, string? customerPhone, string? note, int? voucherId = null, bool usePoints = false)
         {
             var cartItems = await _context.CartItems
                 .Include(c => c.Product)
@@ -42,14 +42,16 @@ namespace NearGo.Services
                 }
             }
 
-            if (loyaltyPointsUsed > 0)
+            if (usePoints)
             {
                 var points = await _context.LoyaltyPoints
                     .Where(lp => lp.UserId == userId && lp.ExpiryDate > DateTime.UtcNow)
-                    .SumAsync(lp => lp.Points);
+                    .SumAsync(lp => (int?)lp.Points) ?? 0;
 
-                var canUse = Math.Min(loyaltyPointsUsed, points);
-                loyaltyDiscount = canUse * 100;
+                if (points >= 1000)
+                {
+                    loyaltyDiscount = 10000;
+                }
             }
 
             var totalAmount = subTotal - discountAmount - loyaltyDiscount;
@@ -67,7 +69,7 @@ namespace NearGo.Services
                 ShippingFee = 0,
                 TotalAmount = totalAmount,
                 VoucherId = voucherId,
-                LoyaltyPointsUsed = loyaltyPointsUsed,
+                LoyaltyPointsUsed = usePoints ? 1000 : 0,
                 LoyaltyDiscount = loyaltyDiscount,
                 Status = "Pending",
                 PaymentStatus = "Unpaid",
@@ -99,15 +101,26 @@ namespace NearGo.Services
 
             _context.CartItems.RemoveRange(cartItems);
 
-            var loyaltyPoints = new LoyaltyPoint
+            _context.LoyaltyPoints.Add(new LoyaltyPoint
             {
                 UserId = userId,
-                Points = (int)(totalAmount / 1000),
+                Points = 100,
                 Source = "Purchase",
                 Description = $"Mua hàng đơn {orderCode}",
                 ExpiryDate = DateTime.UtcNow.AddMonths(6)
-            };
-            _context.LoyaltyPoints.Add(loyaltyPoints);
+            });
+
+            if (usePoints)
+            {
+                _context.LoyaltyPoints.Add(new LoyaltyPoint
+                {
+                    UserId = userId,
+                    Points = -1000,
+                    Source = "Redemption",
+                    Description = $"Đổi 1000 điểm - đơn {orderCode}",
+                    ExpiryDate = DateTime.UtcNow.AddMonths(6)
+                });
+            }
 
             var notification = new Notification
             {
@@ -119,17 +132,6 @@ namespace NearGo.Services
                 IsRead = false
             };
             _context.Notifications.Add(notification);
-
-            var supermarketNotification = new Notification
-            {
-                UserId = userId,
-                Title = "Đơn hàng mới",
-                Message = $"Bạn nhận được đơn hàng mới {orderCode}",
-                Type = "Order",
-                RelatedUrl = $"/supermarket/orders/detail?id={order.Id}",
-                IsRead = false
-            };
-            _context.Notifications.Add(supermarketNotification);
 
             await _context.SaveChangesAsync();
             return order;

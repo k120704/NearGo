@@ -31,7 +31,6 @@ namespace NearGo.Models
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
-        public ICollection<FlashSaleProduct> FlashSaleProducts { get; set; } = new List<FlashSaleProduct>();
         public ICollection<RecentlyViewed> RecentlyViewed { get; set; } = new List<RecentlyViewed>();
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     }
