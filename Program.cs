@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NearGo.Configurations;
 using NearGo.Data;
@@ -53,17 +54,15 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Customer", policy => policy.RequireRole("Customer"));
 });
 
-builder.Services.Configure<VNPaySettings>(builder.Configuration.GetSection("VNPay"));
-builder.Services.Configure<MomoSettings>(builder.Configuration.GetSection("Momo"));
+builder.Services.Configure<SEPaySettings>(builder.Configuration.GetSection("SEPay"));
 builder.Services.Configure<OpenAISettings>(builder.Configuration.GetSection("OpenAI"));
 builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("Gemini"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 
-builder.Services.AddHttpClient<MomoService>();
 builder.Services.AddHttpClient<OpenAIService>();
 builder.Services.AddHttpClient<GeminiService>();
 builder.Services.AddScoped<ChatbotContextService>();
-builder.Services.AddScoped<VNPayService>();
+builder.Services.AddScoped<SEPayService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -103,6 +102,120 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapHub<NotificationHub>("/notificationHub");
+
+app.MapPost("/payment/sepay-webhook", async (HttpContext context, SEPayService sePayService) =>
+{
+    try
+    {
+        var token = context.Request.Query["token"].ToString();
+        var settingsToken = sePayService.GetWebhookToken();
+        if (!string.IsNullOrEmpty(settingsToken) && token != settingsToken)
+        {
+            return Results.Unauthorized();
+        }
+
+        string body;
+        using (var reader = new StreamReader(context.Request.Body))
+        {
+            body = await reader.ReadToEndAsync();
+        }
+
+        var data = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(body);
+        if (data == null)
+        {
+            return Results.BadRequest(new { message = "Invalid JSON" });
+        }
+
+        var content = data.GetValueOrDefault("content")?.ToString() ?? "";
+        var gateway = data.GetValueOrDefault("gateway")?.ToString() ?? "";
+        var transferAmountStr = data.GetValueOrDefault("transferAmount")?.ToString() ?? "0";
+        var transactionId = data.GetValueOrDefault("referenceCode")?.ToString()
+            ?? data.GetValueOrDefault("id")?.ToString() ?? "";
+
+        if (string.IsNullOrEmpty(content) || !content.StartsWith("SEVQR"))
+        {
+            return Results.Ok(new { message = "Ignored - not SEVQR transfer" });
+        }
+
+        var tkpIndex = content.IndexOf("TKP", StringComparison.OrdinalIgnoreCase);
+        if (tkpIndex < 0)
+        {
+            return Results.Ok(new { message = "Ignored - no TKP code" });
+        }
+
+        var orderCode = content.Substring(tkpIndex + 3).Trim();
+        if (string.IsNullOrEmpty(orderCode))
+        {
+            return Results.Ok(new { message = "Ignored - empty order code" });
+        }
+
+        using var scope = context.RequestServices.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var order = await db.Orders.FirstOrDefaultAsync(o => o.OrderCode == orderCode);
+
+        if (order == null)
+        {
+            return Results.Ok(new { message = "Order not found" });
+        }
+
+        if (order.PaymentStatus == "Paid")
+        {
+            return Results.Ok(new { message = "Already paid" });
+        }
+
+        decimal.TryParse(transferAmountStr, System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out var transferAmount);
+
+        order.PaymentStatus = "Paid";
+        order.PaymentMethod = "SEPay";
+        order.TransactionId = transactionId;
+        order.PaymentDate = DateTime.UtcNow;
+        if (order.Status == "Pending")
+        {
+            order.Status = "Pending";
+        }
+
+        var paymentTransaction = new PaymentTransaction
+        {
+            OrderId = order.Id,
+            PaymentMethod = "SEPay",
+            TransactionId = transactionId,
+            BankCode = gateway,
+            Amount = transferAmount > 0 ? transferAmount : order.TotalAmount,
+            Status = "Success",
+            ResponseCode = "00",
+            ResponseMessage = "Thanh toán thành công qua SEPay",
+            CreatedAt = DateTime.UtcNow,
+            PaidAt = DateTime.UtcNow
+        };
+        db.PaymentTransactions.Add(paymentTransaction);
+
+        var customerNotif = new Notification
+        {
+            UserId = order.CustomerId,
+            Title = "Thanh toán thành công",
+            Message = $"Đơn hàng #{order.OrderCode} đã được thanh toán qua SEPay",
+            Type = "Payment",
+            RelatedUrl = $"/customer/orders/detail?id={order.Id}",
+            IsRead = false,
+            CreatedAt = DateTime.UtcNow
+        };
+        db.Notifications.Add(customerNotif);
+
+        await db.SaveChangesAsync();
+
+        var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<NotificationHub>>();
+        await hubContext.Clients.Group($"user_{order.CustomerId}")
+            .SendAsync("ReceiveNotification", "Thanh toán thành công",
+                $"Đơn hàng #{order.OrderCode} đã được thanh toán qua SEPay", "");
+
+        return Results.Ok(new { message = "OK" });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new { message = $"Error: {ex.Message}" });
+    }
+}).WithDisplayName("SEPayWebhook");
 
 app.MapFallbackToPage("/NotFound");
 

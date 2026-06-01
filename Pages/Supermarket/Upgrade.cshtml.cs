@@ -14,13 +14,13 @@ namespace NearGo.Pages.Supermarket
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
-        private readonly VNPayService _vnPayService;
+        private readonly SEPayService _sePayService;
 
-        public UpgradeModel(ApplicationDbContext context, UserManager<AppUser> userManager, VNPayService vnPayService)
+        public UpgradeModel(ApplicationDbContext context, UserManager<AppUser> userManager, SEPayService sePayService)
         {
             _context = context;
             _userManager = userManager;
-            _vnPayService = vnPayService;
+            _sePayService = sePayService;
         }
 
         public NearGo.Models.Supermarket? Supermarket { get; set; }
@@ -53,11 +53,8 @@ namespace NearGo.Pages.Supermarket
                 return RedirectToPage("/Supermarket/Upgrade");
             }
 
-            var txnRef = $"SUB-{supermarket.Id}";
-            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
-            var paymentUrl = _vnPayService.CreatePaymentUrl(199000, txnRef, ipAddress);
-
-            return Redirect(paymentUrl);
+            var orderCode = $"SUB-{supermarket.Id}";
+            return RedirectToPage("/Payment/SEPayReturn", new { orderCode, amount = 199000m });
         }
     }
 }
