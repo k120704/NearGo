@@ -97,18 +97,10 @@ namespace NearGo.Pages.Checkout
                     userId, smId, Input.ShippingAddress,
                     Input.CustomerName, Input.CustomerPhone, Input.Note, null, Input.UsePoints);
 
-                if (Input.PaymentMethod == "VNPay")
+                if (Input.PaymentMethod == "SEPay")
                 {
-                    var vnpay = HttpContext.RequestServices.GetRequiredService<VNPayService>();
-                    var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
-                    var paymentUrl = vnpay.CreatePaymentUrl(order.TotalAmount, order.OrderCode, ipAddress);
-                    return Redirect(paymentUrl);
-                }
-                else if (Input.PaymentMethod == "Momo")
-                {
-                    var momo = HttpContext.RequestServices.GetRequiredService<MomoService>();
-                    var paymentUrl = await momo.CreatePaymentUrl(order.TotalAmount, order.OrderCode, Input.CustomerName, Input.CustomerPhone);
-                    return Redirect(paymentUrl);
+                    var orderCode = order.OrderCode;
+                    return RedirectToPage("/Payment/SEPayReturn", new { orderCode });
                 }
             }
 

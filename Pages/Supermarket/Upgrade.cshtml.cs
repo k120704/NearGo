@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using NearGo.Data;
 using NearGo.Models;
+using NearGo.Services;
 
 namespace NearGo.Pages.Supermarket
 {
@@ -13,11 +14,13 @@ namespace NearGo.Pages.Supermarket
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
+        private readonly SEPayService _sePayService;
 
-        public UpgradeModel(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public UpgradeModel(ApplicationDbContext context, UserManager<AppUser> userManager, SEPayService sePayService)
         {
             _context = context;
             _userManager = userManager;
+            _sePayService = sePayService;
         }
 
         public NearGo.Models.Supermarket? Supermarket { get; set; }
@@ -50,37 +53,8 @@ namespace NearGo.Pages.Supermarket
                 return RedirectToPage("/Supermarket/Upgrade");
             }
 
-            var now = DateTime.UtcNow;
-
-            supermarket.SubscriptionTier = "Premium";
-            supermarket.SubscriptionExpiry = now.AddMonths(1);
-
-            _context.Subscriptions.Add(new Subscription
-            {
-                SupermarketId = supermarket.Id,
-                Tier = "Premium",
-                Amount = 199000,
-                StartDate = now,
-                EndDate = now.AddMonths(1),
-                Status = "Active",
-                CreatedAt = now
-            });
-
-            _context.PlatformFees.Add(new PlatformFee
-            {
-                SupermarketId = supermarket.Id,
-                FeeType = "Subscription",
-                Amount = 199000,
-                Description = "Đăng ký gói Premium 1 tháng",
-                Status = "Paid",
-                CreatedAt = now,
-                PaidAt = now
-            });
-
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Nâng cấp lên gói Premium thành công! Giờ bạn có thể đăng sản phẩm không giới hạn.";
-            return RedirectToPage("/Supermarket/Dashboard");
+            var orderCode = $"SUB-{supermarket.Id}";
+            return RedirectToPage("/Payment/SEPayReturn", new { orderCode, amount = 199000m });
         }
     }
 }
