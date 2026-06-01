@@ -41,7 +41,7 @@
                         </div>
                     </div>
                     <button type="submit" class="w-full py-2.5 bg-primary-500 text-white text-sm font-medium rounded-xl hover:bg-primary-600 transition-colors">Áp dụng</button>
-                    <a href="/products" class="block text-center mt-2 py-2 text-sm text-gray-500 hover:text-primary-600">Xóa bộ lọc</a>
+                    <a href="/products" class="block text-center mt-2 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">Xóa bộ lọc</a>
                 </form>
             </div>
         </aside>
@@ -57,7 +57,7 @@
                         <text>Tất cả sản phẩm</text>
                     }
                 </h1>
-                <span class="text-sm text-gray-500">@Model.TotalCount sản phẩm</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">@Model.TotalCount sản phẩm</span>
             </div>
             @if (!string.IsNullOrEmpty(Model.SearchQuery))
             {
@@ -69,10 +69,10 @@
             {
                 <div class="text-center py-16">
                     <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-box-open text-3xl text-gray-400"></i>
+                        <i class="fas fa-box-open text-3xl text-gray-400 dark:text-gray-500"></i>
                     </div>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Không tìm thấy sản phẩm</h3>
-                    <p class="text-sm text-gray-500">Thử thay đổi bộ lọc hoặc tìm kiếm khác</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Thử thay đổi bộ lọc hoặc tìm kiếm khác</p>
                 </div>
             }
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -90,18 +90,18 @@
                         </div>
                         <div class="p-3">
                             <a href="/products/detail?id=@product.Id">
-                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate hover:text-primary-600 transition-colors">@product.Name</h3>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate hover:text-primary-600 dark:hover:text-primary-400 transition-colors">@product.Name</h3>
                             </a>
-                            <p class="text-xs text-gray-400 mt-0.5">@product.Supermarket?.Name</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">@product.Supermarket?.Name</p>
                             <div class="flex items-center gap-2 mt-2">
                                 <span class="text-base font-bold text-gray-900 dark:text-white">@product.DiscountedPrice.ToString("N0")đ</span>
                                 @if (product.DiscountPercentage > 0)
                                 {
-                                    <span class="text-xs text-gray-400 line-through">@product.OriginalPrice.ToString("N0")đ</span>
+                                    <span class="text-xs text-gray-400 dark:text-gray-500 line-through">@product.OriginalPrice.ToString("N0")đ</span>
                                 }
                             </div>
                             <div class="flex items-center justify-between mt-2">
-                                <span class="text-xs text-gray-400"><i class="far fa-clock mr-1"></i>Còn @Math.Max(0, (product.ExpiryDate - DateTime.UtcNow).Days) ngày</span>
+                                <span class="text-xs text-gray-400 dark:text-gray-500"><i class="far fa-clock mr-1"></i>Còn @Math.Max(0, (product.ExpiryDate - DateTime.UtcNow).Days) ngày</span>
                                 <button onclick="addToCart(@product.Id)" class="w-8 h-8 bg-primary-600 dark:bg-primary-500 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-all shadow-sm shadow-primary-500/30">
                                     <i class="fas fa-plus text-xs"></i>
                                 </button>
@@ -115,19 +115,19 @@
                 <div class="flex items-center justify-center gap-2 mt-8">
                     @if (Model.CurrentPage > 1)
                     {
-                        <a href="@Url.Page("Index", new { page = Model.CurrentPage - 1, category = Model.CategorySlug, area = Model.Area, sort = Model.Sort, search = Model.SearchQuery, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice })" class="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <a href="@Url.Page("Index", new { p = Model.CurrentPage - 1, category = Model.CategorySlug, area = Model.Area, sort = Model.Sort, search = Model.SearchQuery, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice })" class="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     }
                     @for (int i = 1; i <= Model.TotalPages; i++)
                     {
-                        <a href="@Url.Page("Index", new { page = i, category = Model.CategorySlug, area = Model.Area, sort = Model.Sort, search = Model.SearchQuery, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice })" class="px-4 py-2 text-sm rounded-xl @(i == Model.CurrentPage ? "bg-primary-500 text-white" : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700") transition-colors">
+                        <a href="@Url.Page("Index", new { p = i, category = Model.CategorySlug, area = Model.Area, sort = Model.Sort, search = Model.SearchQuery, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice })" class="px-4 py-2 text-sm rounded-xl @(i == Model.CurrentPage ? "bg-primary-500 text-white" : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700") transition-colors">
                             @i
                         </a>
                     }
                     @if (Model.CurrentPage < Model.TotalPages)
                     {
-                        <a href="@Url.Page("Index", new { page = Model.CurrentPage + 1, category = Model.CategorySlug, area = Model.Area, sort = Model.Sort, search = Model.SearchQuery, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice })" class="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <a href="@Url.Page("Index", new { p = Model.CurrentPage + 1, category = Model.CategorySlug, area = Model.Area, sort = Model.Sort, search = Model.SearchQuery, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice })" class="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <i class="fas fa-chevron-right"></i>
                         </a>
                     }

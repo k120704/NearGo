@@ -30,12 +30,12 @@ namespace NearGo.Pages.Supermarket
         public string? Status { get; set; }
         private const int PageSize = 15;
 
-        public async Task OnGetAsync(string? search, int? categoryId, string? status, int page = 1)
+        public async Task OnGetAsync(string? search, int? categoryId, string? status, int p = 1)
         {
             Search = search;
             CategoryId = categoryId;
             Status = status;
-            CurrentPage = Math.Max(1, page);
+            CurrentPage = Math.Max(1, p);
 
             Categories = await _context.Categories.Where(c => c.IsActive).OrderBy(c => c.SortOrder).ToListAsync();
 
