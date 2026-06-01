@@ -61,5 +61,19 @@
         </div>
     </div>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script>
+        const orderCode = '@Model.OrderCode';
+        async function checkPayment() {
+            try {
+                const resp = await fetch('/api/payment/status/' + orderCode);
+                const data = await resp.json();
+                if (data.paid) {
+                    window.location.href = '/customer/orders';
+                }
+            } catch (e) {}
+        }
+        setInterval(checkPayment, 5000);
+        checkPayment();
+    </script>
 </body>
 </html>

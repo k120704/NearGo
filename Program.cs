@@ -103,7 +103,7 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapHub<NotificationHub>("/notificationHub");
 
-app.MapPost("/payment/sepay-webhook", async (HttpContext context, SEPayService sePayService) =>
+async Task<IResult> HandleSepayWebhook(HttpContext context, SEPayService sePayService)
 {
     try
     {
@@ -132,7 +132,7 @@ app.MapPost("/payment/sepay-webhook", async (HttpContext context, SEPayService s
         var transactionId = data.GetValueOrDefault("referenceCode")?.ToString()
             ?? data.GetValueOrDefault("id")?.ToString() ?? "";
 
-        if (string.IsNullOrEmpty(content) || !content.StartsWith("SEVQR"))
+        if (string.IsNullOrEmpty(content) || !content.Contains("SEVQR"))
         {
             return Results.Ok(new { message = "Ignored - not SEVQR transfer" });
         }
@@ -215,7 +215,17 @@ app.MapPost("/payment/sepay-webhook", async (HttpContext context, SEPayService s
     {
         return Results.Ok(new { message = $"Error: {ex.Message}" });
     }
-}).WithDisplayName("SEPayWebhook");
+}
+
+app.MapPost("/payment/sepay-webhook", HandleSepayWebhook).WithDisplayName("SEPayWebhook");
+app.MapPost("/", HandleSepayWebhook).WithDisplayName("SEPayWebhookRoot");
+
+app.MapGet("/api/payment/status/{orderCode}", async (string orderCode, ApplicationDbContext db) =>
+{
+    var order = await db.Orders.FirstOrDefaultAsync(o => o.OrderCode == orderCode);
+    if (order == null) return Results.NotFound();
+    return Results.Ok(new { paid = order.PaymentStatus == "Paid" });
+});
 
 app.MapFallbackToPage("/NotFound");
 
